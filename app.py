@@ -435,11 +435,10 @@ def notifier_client(signalement_id):
         
         # Message par défaut si non fourni
         if not message:
-            message = f"""
-Cher/Chère {signalement.client.prenom} {signalement.client.nom},
+            message = f"""Cher/Chère {signalement.client.prenom} {signalement.client.nom},
 
 Votre signalement #{signalement.id} a été pris en charge.
-Technicien assigné: {signalement.technicien_assigne or 'En cours d\'assignation'}
+Technicien assigné: {signalement.technicien_assigne or 'En cours d assignation'}
 Délai d'intervention: {signalement.delai_intervention or 'En cours de définition'}
 Date prévue: {signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') if signalement.date_intervention else 'En cours de planification'}
 
