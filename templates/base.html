@@ -12,111 +12,339 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
         }
         .container-main {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             margin-top: 50px;
             padding: 40px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .container-main:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
         }
         .wifi-icon {
-            font-size: 4rem;
+            font-size: 5rem;
             color: #667eea;
             text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.3));
         }
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(0deg); }
+            75% { transform: translateY(-5px) rotate(2deg); }
         }
         .btn-wifi {
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 35px;
+            padding: 15px 40px;
             border-radius: 50px;
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-wifi::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-wifi:hover::before {
+            left: 100%;
         }
         .btn-wifi:hover {
-            transform: translateY(-3px);
+            transform: translateY(-3px) scale(1.05);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
             background: linear-gradient(45deg, #764ba2, #667eea);
         }
         .card {
-            border-radius: 15px;
+            border-radius: 20px;
             border: none;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            background: rgba(255, 255, 255, 0.9);
         }
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) rotateX(2deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
         .navbar {
-            background: rgba(0, 0, 0, 0.9) !important;
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95) !important;
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
         .form-control {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
         }
         .form-control:focus {
             border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-            transform: translateY(-2px);
+            box-shadow: 0 0 0 0.5rem rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(255, 255, 255, 0.95);
         }
         .alert {
-            border-radius: 15px;
+            border-radius: 20px;
             border: none;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .gradient-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
+        /* Particules animées */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
-        .gradient-primary {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-        }
-        .gradient-info {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-        }
-        .gradient-warning {
-            background: linear-gradient(135deg, #ffc107, #e0a800);
-        }
-        .icon-circle {
-            width: 40px;
-            height: 40px;
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            font-size: 1rem;
+            pointer-events: none;
+            animation: floatUp 15s infinite linear;
         }
-        .text-white-50 {
-            color: rgba(255, 255, 255, 0.5);
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+        /* Thème Toggle */
+        .theme-toggle {
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        /* Animations avancées */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+                transform: scale(1.05);
+            }
+        }
+        /* Thème sombre optionnel */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d3748 100%);
+        }
+        body.dark-theme .container-main {
+            background: rgba(45, 55, 72, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.dark-theme .card {
+            background: rgba(45, 55, 72, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.dark-theme .navbar {
+            background: rgba(0, 0, 0, 0.95) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        body.dark-theme .form-control {
+            background: rgba(45, 55, 72, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        body.dark-theme .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.5rem rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(45, 55, 72, 0.95);
+        }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container-main {
+                margin: 20px;
+                padding: 20px;
+            }
+            .wifi-icon {
+                font-size: 3rem;
+            }
+            .btn-wifi {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            .particles {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Thème Toggle -->
+    <div class="theme-toggle position-fixed top-0 end-0 m-3" style="z-index: 9999;">
+        <button class="btn btn-sm btn-outline-light" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="theme-icon"></i>
+        </button>
+    </div>
+    
+    <!-- Particules animées -->
+    <div class="particles" id="particles"></div>
+    
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 📶 Signalement WiFi
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('index') }}">Accueil</a>
-                <a class="nav-link" href="{{ url_for('signaler') }}">Signaler</a>
-                <a class="nav-link" href="{{ url_for('login_agent') }}">👤 Espace Agent</a>
+                <a class="nav-link" href="{{ url_for('index') }}">
+                    <i class="fas fa-home me-1"></i>Accueil
+                </a>
+                <a class="nav-link" href="{{ url_for('signaler') }}">
+                    <i class="fas fa-plus me-1"></i>Signaler
+                </a>
+                <a class="nav-link" href="{{ url_for('verification') }}">
+                    <i class="fas fa-search me-1"></i>Vérifier
+                </a>
+                <a class="nav-link" href="{{ url_for('annulation_signalement') }}">
+                    <i class="fas fa-times me-1"></i>Annuler
+                </a>
+                {% if session.get('client_id') %}
+                <a class="nav-link" href="{{ url_for('tableau_bord_client') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('connexion_client') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                </a>
+                {% elif session.get('agent_id') %}
+                <a class="nav-link" href="{{ url_for('tableau_bord_agent') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('signalements_agent') }}">
+                    <i class="fas fa-list me-1"></i>Signalements
+                </a>
+                <a class="nav-link" href="{{ url_for('techniciens') }}">
+                    <i class="fas fa-users me-1"></i>Techniciens
+                </a>
+                {% if session.get('agent_role') == 'superviseur' %}
+                <a class="nav-link" href="{{ url_for('admin') }}">
+                    <i class="fas fa-cog me-1"></i>Administration
+                </a>
+                {% endif %}
+                <a class="nav-link" href="{{ url_for('connexion_agent') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                </a>
+                {% endif %}
             </div>
         </div>
     </nav>
+    
+    <!-- Script pour le thème et les particules -->
+    <script>
+        // Thème Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-theme');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+        
+        // Charger le thème sauvegardé
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        });
+        
+        // Créer des particules animées
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            if (!particlesContainer) return;
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.opacity = Math.random() * 0.5 + 0.2;
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialiser les particules
+        createParticles();
+        
+        // Ajouter des classes d'animation aux éléments
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.card, .btn-wifi, .container-main');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = (index * 0.1) + 's';
+                el.classList.add('fade-in');
+            });
+        });
+    </script> 
 
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
