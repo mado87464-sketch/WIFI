@@ -106,6 +106,7 @@ class Client(db.Model):
     telephone = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(120), nullable=True)
     zone = db.Column(db.String(200), nullable=False)
+    date_creation = db.Column(db.DateTime, default=datetime.utcnow)
     signalements = db.relationship('Signalement', backref='client', lazy=True)
 
     @property
@@ -360,8 +361,7 @@ def inscription_client():
             prenom=prenom,
             telephone=telephone,
             email=email if email else None,
-            zone=zone,
-            date_creation=datetime.utcnow()
+            zone=zone
         )
         
         db.session.add(client)
