@@ -7,11 +7,14 @@ services:
       - "5000:5000"
     environment:
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/wifi_derangement
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
     depends_on:
       - db
     networks:
       - wifi-network
     restart: unless-stopped
+    command: python app.py
 
   db:
     image: mysql:8.0
@@ -38,11 +41,15 @@ services:
       - "5001:5000"
     environment:
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/wifi_derangement
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - wifi-network
     restart: unless-stopped
+    command: python app.py
 
 volumes:
   mysql_data:

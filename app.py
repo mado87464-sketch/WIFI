@@ -2,6 +2,7 @@ import time
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from functools import wraps
 import random
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -127,7 +128,8 @@ class Signalement(db.Model):
     technicien_assigne = db.Column(db.String(100))
     technicien_id = db.Column(db.Integer, db.ForeignKey('technicien.id'), nullable=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)
-    agent = db.relationship('Agent', backref='signalements_geres')
+    agent = db.relationship('Agent', foreign_keys=[agent_id], backref='signalements_geres')
+    agent_resolution_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)
     notes_agent = db.Column(db.Text)
     date_prise_en_charge = db.Column(db.DateTime)
     urgence = db.Column(db.String(20), default='normale')  # basse, normale, haute, urgente
