@@ -16,8 +16,8 @@ db = SQLAlchemy(app)
 def wait_for_db():
     """Attendre que la base de données soit disponible"""
     import pymysql
-    max_retries = 30
     retry_delay = 2
+    max_retries = 30
     
     for i in range(max_retries):
         try:
@@ -166,6 +166,11 @@ def superviseur_required(f):
             return redirect(url_for('tableau_bord_agent'))
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/acces-rapide')
+def acces_rapide():
+    """Page d'accès rapide avec identifiants par défaut"""
+    return render_template('acces_rapide.html')
 
 @app.route('/')
 def index():

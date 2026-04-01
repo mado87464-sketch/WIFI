@@ -4,12 +4,30 @@
 
 {% block content %}
 <div class="container-main">
-    <div class="text-center">
+    <div class="text-center mb-4">
         <div class="wifi-icon mb-4">📶</div>
         <h1 class="display-4 mb-4">Service de Signalement WiFi</h1>
         <p class="lead mb-5">
             Signalez rapidement vos pannes de connexion WiFi. Notre équipe technique interviendra dans les plus brefs délais.
         </p>
+        
+        <!-- Accès rapide -->
+        <div class="alert alert-info mb-4">
+            <h5 class="alert-heading">
+                <i class="fas fa-bolt me-2"></i>
+                Accès Rapide aux Comptes
+            </h5>
+            <p class="mb-0">
+                <a href="{{ url_for('acces_rapide') }}" class="btn btn-info">
+                    <i class="fas fa-users me-2"></i>
+                    Accéder aux comptes de démonstration
+                </a>
+                <br>
+                <small class="text-muted">
+                    Identifiants pré-configurés pour tests rapides
+                </small>
+            </p>
+        </div>
         
         <div class="row mt-4">
         <div class="col-md-3 mb-3">

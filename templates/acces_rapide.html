@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block title %}Accès Rapide - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .access-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .access-card {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .access-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .access-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px 15px 0 0;
+    }
+    .user-type {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .user-type:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    .user-type.active {
+        border-color: #28a745;
+        background-color: #e8f5e8;
+    }
+    .login-form {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-top: 1rem;
+    }
+    .quick-login-btn {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .quick-login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .demo-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ffc107;
+        color: #000;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    .info-box {
+        background-color: #e3f2fd;
+        border-left: 4px solid #007bff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .credentials-list {
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+    .credential-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    .credential-item:hover {
+        background-color: #f8f9fa;
+    }
+    .credential-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- En-tête -->
+    <div class="text-center mb-4">
+        <h1 class="mb-3">
+            <i class="fas fa-bolt text-primary me-3"></i>
+            Accès Rapide
+        </h1>
+        <p class="lead text-muted">
+            Accédez rapidement à votre espace avec les identifiants pré-configurés
+        </p>
+    </div>
+
+    <div class="access-container">
+        <div class="row">
+            <!-- Carte Client -->
+            <div class="col-md-6 mb-4">
+                <div class="card access-card">
+                    <div class="access-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user me-2"></i>
+                            Espace Client
+                        </h3>
+                    </div>
+                    
+                    <div class="user-type active" onclick="showClientLogin()">
+                        <i class="fas fa-user fa-2x mb-2 text-primary"></i>
+                        <h5>Client</h5>
+                        <p class="mb-0 text-muted">Suivez vos signalements</p>
+                    </div>
+
+                    <div class="login-form" id="clientLoginForm">
+                        <h6 class="mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Connexion Client
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-phone me-1"></i>
+                                Numéro de téléphone
+                            </label>
+                            <input type="tel" class="form-control" id="clientPhone" 
+                                   placeholder="77XXXXXXXX" value="771234567">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-lock me-1"></i>
+                                Mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="clientPassword" 
+                                   placeholder="Entrez votre mot de passe" value="client123">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button onclick="loginClient()" class="quick-login-btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Se connecter comme Client
+                            </button>
+                        </div>
+
+                        <div class="credentials-list">
+                            <h6 class="mb-3">
+                                <i class="fas fa-users me-2"></i>
+                                Comptes Clients Exemples
+                            </h6>
+                            <div class="credential-item">
+                                <strong>Mamadou Diop:</strong> 771234567 / client123
+                            </div>
+                            <div class="credential-item">
+                                <strong>Fatou Sarr:</strong> 772345678 / client123
+                            </div>
+                            <div class="credential-item">
+                                <strong>Aminata Fall:</strong> 773456789 / client123
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Agent -->
+            <div class="col-md-6 mb-4">
+                <div class="card access-card">
+                    <div class="access-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user-tie me-2"></i>
+                            Espace Agent
+                        </h3>
+                    </div>
+                    
+                    <div class="user-type" onclick="showAgentLogin()">
+                        <i class="fas fa-user-tie fa-2x mb-2 text-success"></i>
+                        <h5>Agent</h5>
+                        <p class="mb-0 text-muted">Gérez les signalements</p>
+                    </div>
+
+                    <div class="login-form" id="agentLoginForm" style="display: none;">
+                        <h6 class="mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Connexion Agent
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>
+                                Email
+                            </label>
+                            <input type="email" class="form-control" id="agentEmail" 
+                                   placeholder="agent@exemple.com" value="agent@wifiderangement.sn">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-lock me-1"></i>
+                                Mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="agentPassword" 
+                                   placeholder="Entrez votre mot de passe" value="agent123">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button onclick="loginAgent()" class="quick-login-btn btn-success">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Se connecter comme Agent
+                            </button>
+                        </div>
+
+                        <div class="credentials-list">
+                            <h6 class="mb-3">
+                                <i class="fas fa-users me-2"></i>
+                                Comptes Agents Exemples
+                            </h6>
+                            <div class="credential-item">
+                                <strong>Ali Matar:</strong> agent@wifiderangement.sn / agent123
+                            </div>
+                            <div class="credential-item">
+                                <strong>Mamadou Sow:</strong> agent@wifiderangement.sn / agent123
+                            </div>
+                            <div class="credential-item">
+                                <strong>Faty Diop:</strong> agent@wifiderangement.sn / agent123
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carte Superviseur -->
+            <div class="col-md-6 mb-4">
+                <div class="card access-card">
+                    <div class="access-header bg-warning" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user-shield me-2"></i>
+                            Espace Superviseur
+                        </h3>
+                    </div>
+                    
+                    <div class="user-type" onclick="showSuperviseurLogin()">
+                        <i class="fas fa-user-shield fa-2x mb-2 text-warning"></i>
+                        <h5>Superviseur</h5>
+                        <p class="mb-0 text-muted">Administration complète</p>
+                    </div>
+
+                    <div class="login-form" id="superviseurLoginForm" style="display: none;">
+                        <h6 class="mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Connexion Superviseur
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-envelope me-1"></i>
+                                Email
+                            </label>
+                            <input type="email" class="form-control" id="superviseurEmail" 
+                                   placeholder="superviseur@exemple.com" value="superviseur@wifiderangement.sn">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-lock me-1"></i>
+                                Mot de passe
+                            </label>
+                            <input type="password" class="form-control" id="superviseurPassword" 
+                                   placeholder="Entrez votre mot de passe" value="superviseur123">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button onclick="loginSuperviseur()" class="quick-login-btn btn-warning">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Se connecter comme Superviseur
+                            </button>
+                        </div>
+
+                        <div class="credentials-list">
+                            <h6 class="mb-3">
+                                <i class="fas fa-users me-2"></i>
+                                Comptes Superviseurs Exemples
+                            </h6>
+                            <div class="credential-item">
+                                <strong>Admin Principal:</strong> superviseur@wifiderangement.sn / superviseur123
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations importantes -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="info-box">
+                    <h5 class="mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Informations Importantes
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-2">
+                                <i class="fas fa-user me-2"></i>
+                                Pour les Clients
+                            </h6>
+                            <ul>
+                                <li>Numéro de téléphone comme identifiant</li>
+                                <li>Suivi de vos signalements</li>
+                                <li>Annulation de demandes</li>
+                                <li>Historique complet</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-2">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Pour les Agents
+                            </h6>
+                            <ul>
+                                <li>Email professionnel comme identifiant</li>
+                                <li>Gestion des signalements</li>
+                                <li>Affectation des techniciens</li>
+                                <li>Notifications aux clients</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-2">
+                                <i class="fas fa-user-shield me-2"></i>
+                                Pour les Superviseurs
+                            </h6>
+                            <ul>
+                                <li>Accès administrateur complet</li>
+                                <li>Gestion des agents et techniciens</li>
+                                <li>Statistiques et rapports</li>
+                                <li>Configuration du système</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badge de démonstration -->
+    <div class="demo-badge">
+        <i class="fas fa-flask me-1"></i>
+        MODE DÉMONSTRATION
+    </div>
+
+    <!-- Actions alternatives -->
+    <div class="text-center mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <a href="{{ url_for('inscription_client') }}" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Créer un compte
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('connexion_client') }}" class="btn btn-success">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Connexion Client
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('login_agent') }}" class="btn btn-info">
+                    <i class="fas fa-user-tie me-2"></i>
+                    Connexion Agent
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showClientLogin() {
+    document.getElementById('clientLoginForm').style.display = 'block';
+    document.getElementById('agentLoginForm').style.display = 'none';
+    document.getElementById('superviseurLoginForm').style.display = 'none';
+    
+    // Update active states
+    document.querySelectorAll('.user-type').forEach(el => el.classList.remove('active'));
+    event.target.closest('.user-type').classList.add('active');
+}
+
+function showAgentLogin() {
+    document.getElementById('clientLoginForm').style.display = 'none';
+    document.getElementById('agentLoginForm').style.display = 'block';
+    document.getElementById('superviseurLoginForm').style.display = 'none';
+    
+    // Update active states
+    document.querySelectorAll('.user-type').forEach(el => el.classList.remove('active'));
+    event.target.closest('.user-type').classList.add('active');
+}
+
+function showSuperviseurLogin() {
+    document.getElementById('clientLoginForm').style.display = 'none';
+    document.getElementById('agentLoginForm').style.display = 'none';
+    document.getElementById('superviseurLoginForm').style.display = 'block';
+    
+    // Update active states
+    document.querySelectorAll('.user-type').forEach(el => el.classList.remove('active'));
+    event.target.closest('.user-type').classList.add('active');
+}
+
+function loginClient() {
+    const phone = document.getElementById('clientPhone').value;
+    const password = document.getElementById('clientPassword').value;
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/connexion-client';
+    
+    const phoneInput = document.createElement('input');
+    phoneInput.type = 'hidden';
+    phoneInput.name = 'telephone';
+    phoneInput.value = phone;
+    
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'hidden';
+    passwordInput.name = 'password';
+    passwordInput.value = password;
+    
+    form.appendChild(phoneInput);
+    form.appendChild(passwordInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function loginAgent() {
+    const email = document.getElementById('agentEmail').value;
+    const password = document.getElementById('agentPassword').value;
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/login-agent';
+    
+    const emailInput = document.createElement('input');
+    emailInput.type = 'hidden';
+    emailInput.name = 'email';
+    emailInput.value = email;
+    
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'hidden';
+    passwordInput.name = 'password';
+    passwordInput.value = password;
+    
+    form.appendChild(emailInput);
+    form.appendChild(passwordInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function loginSuperviseur() {
+    const email = document.getElementById('superviseurEmail').value;
+    const password = document.getElementById('superviseurPassword').value;
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/login-agent';
+    
+    const emailInput = document.createElement('input');
+    emailInput.type = 'hidden';
+    emailInput.name = 'email';
+    emailInput.value = email;
+    
+    const passwordInput = document.createElement('input');
+    passwordInput.type = 'hidden';
+    passwordInput.name = 'password';
+    passwordInput.value = password;
+    
+    form.appendChild(emailInput);
+    form.appendChild(passwordInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Auto-format phone number
+document.getElementById('clientPhone').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}
