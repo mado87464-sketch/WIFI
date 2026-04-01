@@ -7,27 +7,78 @@
     .verification-form {
         max-width: 600px;
         margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 2rem;
     }
     .search-icon {
         font-size: 4rem;
-        color: #007bff;
-        margin-bottom: 1rem;
+        color: #667eea;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
     }
     .result-card {
-        border-left: 4px solid #007bff;
+        border-left: 4px solid #667eea;
         transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border-radius: 15px;
     }
     .result-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,123,255,0.2);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
     .status-badge {
         font-size: 0.9rem;
         padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
     }
     .timeline-item {
         position: relative;
         padding-left: 30px;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 8px;
+        height: 100%;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+        border-radius: 4px;
+    }
+    .btn-info {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        transform: translateY(-2px);
+    }
+</style>
         margin-bottom: 15px;
     }
     .timeline-item::before {

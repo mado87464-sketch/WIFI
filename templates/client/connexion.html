@@ -7,27 +7,71 @@
     .connexion-form {
         max-width: 500px;
         margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 2rem;
     }
     .login-icon {
-        font-size: 5rem;
-        color: #007bff;
+        font-size: 4rem;
+        color: #667eea;
         margin-bottom: 1.5rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
     }
     .feature-list {
-        background-color: #f8f9fa;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border-radius: 15px;
         padding: 1.5rem;
         margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .feature-item {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #dee2e6;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    .feature-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+        transform: translateX(5px);
     }
     .feature-item:last-child {
         border-bottom: none;
     }
     .remember-me {
         display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-primary {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    .form-control {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+        transform: translateY(-2px);
+    }
+</style>
         align-items: center;
         gap: 0.5rem;
     }
