@@ -4,16 +4,16 @@
 
 {% block content %}
 <div class="container-main">
-    <div class="text-center mb-5">
-        <div class="wifi-icon mb-4">📶</div>
-        <h1 class="display-3 mb-4 fw-bold">Service de Signalement WiFi</h1>
-        <p class="lead mb-5 fs-5">
+    <div class="text-center mb-4">
+        <div class="wifi-icon mb-3">📶</div>
+        <h1 class="display-3 mb-3 fw-bold">Service de Signalement WiFi</h1>
+        <p class="lead mb-4 fs-5">
             Signalez rapidement vos pannes de connexion WiFi. Notre équipe technique interviendra dans les plus brefs délais.
         </p>
         
         <!-- Accès rapide -->
-        <div class="alert alert-info mb-4 border-0 shadow-lg" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
-            <h5 class="alert-heading fw-bold">
+        <div class="alert alert-info mb-4 border-0 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            <h5 class="alert-heading fw-bold mb-3">
                 <i class="fas fa-bolt me-2"></i>
                 Accès Rapide aux Comptes
             </h5>
@@ -29,58 +29,58 @@
             </p>
         </div>
         
-        <div class="row mt-5">
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-user-plus fa-3x text-success mb-3" style="animation: pulse 2s infinite;"></i>
+        <div class="row mt-4">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
+                            <i class="fas fa-user-plus fa-2x text-success mb-2" style="animation: pulse 2s infinite;"></i>
                         </div>
                         <h5 class="card-title fw-bold">Créer un compte</h5>
-                        <p class="card-text text-muted">Accédez à votre espace personnel pour suivre vos demandes</p>
-                        <a href="{{ url_for('inscription_client') }}" class="btn btn-success btn-lg">
+                        <p class="card-text text-muted small">Accédez à votre espace personnel pour suivre vos demandes</p>
+                        <a href="{{ url_for('inscription_client') }}" class="btn btn-success">
                             <i class="fas fa-user-plus me-2"></i>S'inscrire
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-sign-in-alt fa-3x text-primary mb-3" style="animation: pulse 2s infinite;"></i>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
+                            <i class="fas fa-sign-in-alt fa-2x text-primary mb-2" style="animation: pulse 2s infinite;"></i>
                         </div>
                         <h5 class="card-title fw-bold">Se connecter</h5>
-                        <p class="card-text text-muted">Accédez à votre compte client</p>
-                        <a href="{{ url_for('connexion_client') }}" class="btn btn-primary btn-lg">
+                        <p class="card-text text-muted small">Accédez à votre compte client</p>
+                        <a href="{{ url_for('connexion_client') }}" class="btn btn-primary">
                             <i class="fas fa-sign-in-alt me-2"></i>Connexion
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-search fa-3x text-info mb-3" style="animation: pulse 2s infinite;"></i>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
+                            <i class="fas fa-search fa-2x text-info mb-2" style="animation: pulse 2s infinite;"></i>
                         </div>
                         <h5 class="card-title fw-bold">Vérifier état</h5>
-                        <p class="card-text text-muted">Suivez l'état de votre signalement</p>
-                        <a href="{{ url_for('verification') }}" class="btn btn-info btn-lg">
+                        <p class="card-text text-muted small">Suivez l'état de votre signalement</p>
+                        <a href="{{ url_for('verification') }}" class="btn btn-info">
                             <i class="fas fa-search me-2"></i>Vérifier
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-times-circle fa-3x text-danger mb-3" style="animation: pulse 2s infinite;"></i>
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
+                            <i class="fas fa-times-circle fa-2x text-danger mb-2" style="animation: pulse 2s infinite;"></i>
                         </div>
                         <h5 class="card-title fw-bold">Annuler demande</h5>
-                        <p class="card-text text-muted">Annulez une demande en cours</p>
-                        <a href="{{ url_for('annulation_signalement') }}" class="btn btn-danger btn-lg">
+                        <p class="card-text text-muted small">Annulez une demande en cours</p>
+                        <a href="{{ url_for('annulation_signalement') }}" class="btn btn-danger">
                             <i class="fas fa-times-circle me-2"></i>Annuler
                         </a>
                     </div>
@@ -119,82 +119,82 @@
         </div>
         
         <!-- Section Services -->
-        <div class="row mt-5">
-            <div class="col-12 mb-5">
+        <div class="row mt-4">
+            <div class="col-12 mb-4">
                 <div class="text-center">
-                    <h2 class="fw-bold mb-4">
+                    <h2 class="fw-bold mb-3">
                         <i class="fas fa-star text-warning me-2"></i>
                         Nos Services
                     </h2>
-                    <p class="lead text-muted mb-5">
+                    <p class="lead text-muted mb-4">
                         Une solution complète pour tous vos problèmes de connexion WiFi
                     </p>
                 </div>
             </div>
             
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg gradient-success">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow gradient-success">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
                             <div class="icon-circle bg-success text-white">
-                                <i class="fas fa-bolt fa-2x"></i>
+                                <i class="fas fa-bolt"></i>
                             </div>
                         </div>
                         <h5 class="card-title fw-bold text-white">Rapide</h5>
-                        <p class="card-text text-white-50">Signalez votre problème en quelques minutes seulement</p>
-                        <a href="{{ url_for('signaler') }}" class="btn btn-light btn-lg mt-3">
-                            <i class="fas fa-arrow-right me-2"></i>Signaler maintenant
+                        <p class="card-text text-white-50 small">Signalez votre problème en quelques minutes seulement</p>
+                        <a href="{{ url_for('signaler') }}" class="btn btn-light btn-sm mt-2">
+                            <i class="fas fa-arrow-right me-1"></i>Signaler
                         </a>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg gradient-primary">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow gradient-primary">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
                             <div class="icon-circle bg-primary text-white">
-                                <i class="fas fa-tools fa-2x"></i>
+                                <i class="fas fa-tools"></i>
                             </div>
                         </div>
                         <h5 class="card-title fw-bold text-white">Efficace</h5>
-                        <p class="card-text text-white-50">Nos techniciens qualifiés interviennent rapidement</p>
-                        <a href="{{ url_for('login_agent') }}" class="btn btn-light btn-lg mt-3">
-                            <i class="fas fa-user-tie me-2"></i>Espace Agent
+                        <p class="card-text text-white-50 small">Nos techniciens qualifiés interviennent rapidement</p>
+                        <a href="{{ url_for('login_agent') }}" class="btn btn-light btn-sm mt-2">
+                            <i class="fas fa-user-tie me-1"></i>Agent
                         </a>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg gradient-info">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow gradient-info">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
                             <div class="icon-circle bg-info text-white">
-                                <i class="fas fa-mobile-alt fa-2x"></i>
+                                <i class="fas fa-mobile-alt"></i>
                             </div>
                         </div>
                         <h5 class="card-title fw-bold text-white">Simple</h5>
-                        <p class="card-text text-white-50">Pas besoin d'appeler, tout se fait en ligne</p>
-                        <a href="{{ url_for('connexion_client') }}" class="btn btn-light btn-lg mt-3">
-                            <i class="fas fa-sign-in-alt me-2"></i>Connexion Client
+                        <p class="card-text text-white-50 small">Pas besoin d'appeler, tout se fait en ligne</p>
+                        <a href="{{ url_for('connexion_client') }}" class="btn btn-light btn-sm mt-2">
+                            <i class="fas fa-sign-in-alt me-1"></i>Connexion
                         </a>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-lg gradient-warning">
-                    <div class="card-body text-center p-4">
-                        <div class="mb-3">
+            <div class="col-md-3 mb-3">
+                <div class="card h-100 border-0 shadow gradient-warning">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
                             <div class="icon-circle bg-warning text-white">
-                                <i class="fas fa-chart-line fa-2x"></i>
+                                <i class="fas fa-chart-line"></i>
                             </div>
                         </div>
                         <h5 class="card-title fw-bold text-white">Suivi</h5>
-                        <p class="card-text text-white-50">Suivez l'état de vos demandes en temps réel</p>
-                        <a href="{{ url_for('verification') }}" class="btn btn-light btn-lg mt-3">
-                            <i class="fas fa-search me-2"></i>Vérifier état
+                        <p class="card-text text-white-50 small">Suivez l'état de vos demandes en temps réel</p>
+                        <a href="{{ url_for('verification') }}" class="btn btn-light btn-sm mt-2">
+                            <i class="fas fa-search me-1"></i>Vérifier
                         </a>
                     </div>
                 </div>
