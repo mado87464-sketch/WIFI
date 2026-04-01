@@ -67,7 +67,10 @@
                             <select class="form-select" id="technicien" name="technicien" required>
                                 <option value="">Choisir un technicien</option>
                                 {% for technicien in techniciens %}
-                                    <option value="{{ technicien }}">{{ technicien }}</option>
+                                    <option value="{{ technicien.id }}">
+                                        {{ technicien.nom_complet }} - {{ technicien.specialite }} 
+                                        ({{ technicien.zone_couverture }}) - {{ technicien.statut_display }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>

@@ -513,19 +513,28 @@ def traiter_signalement(signalement_id):
     signalement = Signalement.query.get_or_404(signalement_id)
     
     if request.method == 'POST':
+        # Récupérer les données du formulaire
+        technicien_id = request.form.get('technicien')
+        delai_heures = int(request.form.get('delai_heures', 4))
+        notes_agent = request.form.get('notes_agent', '')
+        
         # Assigner le signalement à l'agent connecté
         signalement.agent_id = session['agent_id']
         signalement.statut = 'en_attente'
         signalement.date_prise_en_charge = datetime.utcnow()
-        signalement.notes_agent = request.form.get('notes_agent', '')
+        signalement.notes_agent = notes_agent
         
-        # Assigner le technicien et le délai
-        techniciens = ["Technicien Alpha", "Technicien Beta", "Technicien Gamma", "Technicien Delta"]
-        technicien = request.form.get('technicien')
-        if technicien in techniciens:
-            signalement.technicien_assigne = technicien
+        # Assigner le technicien
+        if technicien_id:
+            technicien = Technicien.query.get(technicien_id)
+            if technicien:
+                signalement.technicien_id = technicien_id
+                signalement.technicien_assigne = technicien.nom_complet
+                technicien.interventions_en_cours += 1
+                technicien.interventions_totales += 1
+                technicien.disponibilite = 'occupe'
         
-        delai_heures = int(request.form.get('delai_heures', 4))
+        # Calculer le délai et la date d'intervention
         delai_intervention = f"{delai_heures} heures"
         date_intervention = datetime.utcnow() + timedelta(hours=delai_heures)
         
@@ -537,7 +546,14 @@ def traiter_signalement(signalement_id):
         flash(f'Signalement #{signalement.id} traité avec succès', 'success')
         return redirect(url_for('signalements_agent'))
     
-    techniciens = ["Technicien Alpha", "Technicien Beta", "Technicien Gamma", "Technicien Delta"]
+    techniciens = Technicien.query.filter_by(disponibilite='disponible').all()
+    
+    # Si le client a une zone, filtrer les techniciens par zone
+    if signalement.client.zone:
+        techniciens_zone = [t for t in techniciens if signalement.client.zone.lower() in t.zone_couverture.lower()]
+        if techniciens_zone:
+            techniciens = techniciens_zone
+    
     return render_template('agent/traiter_signalement.html', 
                          signalement=signalement, 
                          techniciens=techniciens)
