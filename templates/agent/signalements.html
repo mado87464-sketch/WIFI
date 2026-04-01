@@ -115,31 +115,103 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
+                                    <!-- Dropdown pour changer le statut -->
+                                    <div class="dropdown me-1">
+                                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="statutDropdown{{ signalement.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-exchange-alt me-1"></i>Statut
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="statutDropdown{{ signalement.id }}">
+                                            <li><h6 class="dropdown-header">Changer le statut</h6></li>
+                                            
+                                            {% if signalement.statut != 'nouveau' %}
+                                            <li>
+                                                <form method="POST" action="{{ url_for('modifier_statut_signalement', signalement_id=signalement.id) }}" style="margin: 0;">
+                                                    <input type="hidden" name="nouveau_statut" value="nouveau">
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-plus-circle text-info me-2"></i>Nouveau
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                            
+                                            {% if signalement.statut != 'en_attente' %}
+                                            <li>
+                                                <form method="POST" action="{{ url_for('modifier_statut_signalement', signalement_id=signalement.id) }}" style="margin: 0;">
+                                                    <input type="hidden" name="nouveau_statut" value="en_attente">
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-clock text-warning me-2"></i>En attente
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                            
+                                            {% if signalement.statut != 'en_cours' %}
+                                            <li>
+                                                <form method="POST" action="{{ url_for('modifier_statut_signalement', signalement_id=signalement.id) }}" style="margin: 0;">
+                                                    <input type="hidden" name="nouveau_statut" value="en_cours">
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-tools text-primary me-2"></i>En cours
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                            
+                                            {% if signalement.statut != 'resolu' %}
+                                            <li>
+                                                <form method="POST" action="{{ url_for('modifier_statut_signalement', signalement_id=signalement.id) }}" style="margin: 0;">
+                                                    <input type="hidden" name="nouveau_statut" value="resolu">
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>Résolu
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                            
+                                            {% if signalement.statut != 'annule' %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form method="POST" action="{{ url_for('modifier_statut_signalement', signalement_id=signalement.id) }}" style="margin: 0;">
+                                                    <input type="hidden" name="nouveau_statut" value="annule">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="fas fa-times-circle me-2"></i>Annuler
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+
+                                    <!-- Boutons d'action rapides -->
                                     {% if signalement.statut in ['nouveau', 'en_attente', 'en_cours'] %}
-                                        <a href="{{ url_for('resoudre_signalement', signalement_id=signalement.id) }}" 
-                                           class="btn btn-success btn-sm me-1">
-                                            <i class="fas fa-check me-1"></i>Résoudre
-                                        </a>
+                                    <a href="{{ url_for('resoudre_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-success btn-sm me-1" title="Résoudre avec détails">
+                                        <i class="fas fa-check me-1"></i>Résoudre
+                                    </a>
                                     {% endif %}
+                                    
                                     {% if signalement.technicien_assigne and signalement.statut == 'en_attente' %}
-                                        <a href="{{ url_for('notifier_client', signalement_id=signalement.id) }}" 
-                                           class="btn btn-sm btn-info" title="Notifier le client">
-                                            <i class="fas fa-bell"></i>
-                                        </a>
+                                    <a href="{{ url_for('notifier_client', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-info" title="Notifier le client">
+                                        <i class="fas fa-bell"></i>
+                                    </a>
                                     {% endif %}
+                                    
                                     {% if signalement.statut == 'nouveau' %}
-                                        <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
-                                           class="btn btn-sm btn-success" title="Affecter à un technicien">
-                                            <i class="fas fa-user-plus"></i>
-                                        </a>
-                                    {% endif %}
-                                    {% if signalement.statut == 'en_attente' %}
-                                        <a href="{{ url_for('confirmer_intervention', signalement_id=signalement.id) }}" 
-                                           class="btn btn-sm btn-success" title="Confirmer l'intervention">
-                                            <i class="fas fa-check"></i>
-                                        </a>
-                                    {% endif %}
                                     <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-outline-success" title="Affecter à un technicien">
+                                        <i class="fas fa-user-plus"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% if signalement.statut == 'en_attente' %}
+                                    <a href="{{ url_for('confirmer_intervention', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-outline-success" title="Confirmer l'intervention">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <!-- Bouton voir détails -->
+                                    <a href="{{ url_for('traiter_signalement', signalement_id=signalement.id) }}" 
                                        class="btn btn-sm btn-outline-secondary" title="Voir détails">
                                         <i class="fas fa-eye"></i>
                                     </a>
