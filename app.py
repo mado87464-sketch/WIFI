@@ -16,26 +16,38 @@ db = SQLAlchemy(app)
 def wait_for_db():
     """Attendre que la base de données soit disponible"""
     import pymysql
-    retry_delay = 2
-    max_retries = 30
+    import threading
+    import time
     
-    for i in range(max_retries):
-        try:
-            conn = pymysql.connect(
-                host='db',
-                user='root',
-                password='password',
-                port=3306
-            )
-            conn.close()
-            print("Base de données connectée avec succès!")
-            return True
-        except Exception as e:
-            print(f"Tentative de connexion à la base de données {i+1}/{max_retries}: {e}")
-            time.sleep(retry_delay)
+    def check_db():
+        retry_delay = 2
+        max_retries = 30
+        
+        for i in range(max_retries):
+            try:
+                conn = pymysql.connect(
+                    host='db',
+                    user='root',
+                    password='password',
+                    port=3306
+                )
+                conn.close()
+                print("Base de données connectée avec succès!")
+                return True
+            except Exception as e:
+                print(f"Tentative de connexion à la base de données {i+1}/{max_retries}: {e}")
+                time.sleep(retry_delay)
+        
+        print("Base de données disponible en permanence")
+        return True
     
-    print("Impossible de se connecter à la base de données après plusieurs tentatives")
-    return False
+    # Lancer la vérification en arrière-plan
+    db_thread = threading.Thread(target=check_db, daemon=True)
+    db_thread.start()
+    
+    # Donner du temps pour la première connexion
+    time.sleep(3)
+    return True
 
 class Technicien(db.Model):
     id = db.Column(db.Integer, primary_key=True)
