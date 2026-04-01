@@ -690,13 +690,39 @@ def tableau_bord_agent():
     # Signalements récents
     signalements_recents = Signalement.query.order_by(Signalement.date_signalement.desc()).limit(10).all()
     
+    # Données pour les graphiques
+    from datetime import datetime, timedelta
+    dates = []
+    counts = []
+    for i in range(7):
+        date = datetime.utcnow() - timedelta(days=i)
+        count = Signalement.query.filter(
+            Signalement.date_signalement >= date.replace(hour=0, minute=0, second=0),
+            Signalement.date_signalement < date.replace(hour=23, minute=59, second=59)
+        ).count()
+        dates.append(date.strftime('%d/%m'))
+        counts.append(count)
+    
+    # Activités récentes
+    recent_activities = []
+    for signalement in signalements_recents[:5]:
+        recent_activities.append({
+            'description': f'Signalement #{signalement.id}',
+            'time': signalement.date_signalement.strftime('%H:%M'),
+            'type': 'primary',
+            'status': signalement.statut
+        })
+    
     return render_template('agent/tableau_bord.html', 
                          total_signalements=total_signalements,
                          nouveaux=nouveaux,
                          en_attente=en_attente,
                          en_cours=en_cours,
                          resolus=resolus,
-                         signalements_recents=signalements_recents)
+                         signalements_recents=signalements_recents,
+                         dates=dates,
+                         counts=counts,
+                         recent_activities=recent_activities)
 
 @app.route('/signalements-agent')
 @agent_required
