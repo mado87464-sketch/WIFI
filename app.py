@@ -104,6 +104,7 @@ class Client(db.Model):
     nom = db.Column(db.String(100), nullable=False)
     prenom = db.Column(db.String(100), nullable=False)
     telephone = db.Column(db.String(20), nullable=False)
+    email = db.Column(db.String(120), nullable=True)
     zone = db.Column(db.String(200), nullable=False)
     signalements = db.relationship('Signalement', backref='client', lazy=True)
 
