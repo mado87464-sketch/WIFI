@@ -63,8 +63,8 @@ class Technicien(db.Model):
     def statut_display(self):
         statuts = {
             'disponible': '✅ Disponible',
-            'occupe': '🔧 Occupé',
             'conge': '🏖️ En congé'
+            'occupe': '🔧 Occupé',
         }
         return statuts.get(self.disponibilite, 'Inconnu')
 
@@ -193,6 +193,139 @@ def verification_signalement():
     return render_template('client/verification.html', 
                          signalements=signalements, 
                          no_results=no_results)
+
+def client_login_required(f):
+    """Décorateur pour exiger la connexion client"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'client_id' not in session:
+            flash('Veuillez vous connecter pour accéder à cette page', 'warning')
+            return redirect(url_for('connexion_client'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/inscription-client', methods=['GET', 'POST'])
+def inscription_client():
+    """Page d'inscription pour les clients"""
+    if request.method == 'POST':
+        nom = request.form.get('nom', '').strip()
+        prenom = request.form.get('prenom', '').strip()
+        telephone = request.form.get('telephone', '').strip()
+        email = request.form.get('email', '').strip()
+        zone = request.form.get('zone', '').strip()
+        password = request.form.get('password', '')
+        password_confirm = request.form.get('password_confirm', '')
+        
+        # Validation
+        errors = []
+        
+        if not nom or not prenom:
+            errors.append('Le nom et le prénom sont obligatoires')
+        
+        if not telephone or len(telephone) != 9 or not telephone.isdigit():
+            errors.append('Le numéro de téléphone doit contenir 9 chiffres')
+        
+        if Client.query.filter_by(telephone=telephone).first():
+            errors.append('Ce numéro de téléphone est déjà utilisé')
+        
+        if password != password_confirm:
+            errors.append('Les mots de passe ne correspondent pas')
+        
+        if len(password) < 8:
+            errors.append('Le mot de passe doit contenir au moins 8 caractères')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('client/inscription.html')
+        
+        # Créer le client
+        client = Client(
+            nom=nom,
+            prenom=prenom,
+            telephone=telephone,
+            email=email if email else None,
+            zone=zone,
+            date_creation=datetime.utcnow()
+        )
+        
+        db.session.add(client)
+        db.session.commit()
+        
+        flash('Compte créé avec succès! Vous pouvez maintenant vous connecter.', 'success')
+        return redirect(url_for('connexion_client'))
+    
+    return render_template('client/inscription.html')
+
+@app.route('/connexion-client', methods=['GET', 'POST'])
+def connexion_client():
+    """Page de connexion pour les clients"""
+    if request.method == 'POST':
+        telephone = request.form.get('telephone', '').strip()
+        password = request.form.get('password', '')
+        remember = request.form.get('remember', '0')
+        
+        client = Client.query.filter_by(telephone=telephone).first()
+        
+        if client and len(password) >= 8:  # Validation simple
+            session['client_id'] = client.id
+            session['client_telephone'] = client.telephone
+            session['client_nom'] = f"{client.prenom} {client.nom}"
+            session['last_login'] = datetime.utcnow().strftime('%d/%m/%Y %H:%M')
+            
+            flash(f'Bienvenue {client.prenom} !', 'success')
+            return redirect(url_for('tableau_bord_client'))
+        else:
+            flash('Numéro de téléphone ou mot de passe incorrect', 'danger')
+    
+    return render_template('client/connexion.html')
+
+@app.route('/tableau-bord-client')
+@client_login_required
+def tableau_bord_client():
+    """Tableau de bord pour les clients"""
+    client = Client.query.get(session['client_id'])
+    
+    # Statistiques
+    total_signalements = Signalement.query.filter_by(client_id=client.id).count()
+    signalements_resolus = Signalement.query.filter_by(client_id=client.id, statut='resolu').count()
+    signalements_en_cours = Signalement.query.filter_by(client_id=client.id, statut='en_cours').count()
+    signalements_en_attente = Signalement.query.filter_by(client_id=client.id, statut='en_attente').count()
+    
+    # Signalements récents
+    signalements_recents = Signalement.query.filter_by(client_id=client.id)\
+        .order_by(Signalement.date_signalement.desc())\
+        .limit(5).all()
+    
+    return render_template('client/tableau_bord.html',
+                         client=client,
+                         total_signalements=total_signalements,
+                         signalements_resolus=signalements_resolus,
+                         signalements_en_cours=signalements_en_cours,
+                         signalements_en_attente=signalements_en_attente,
+                         signalements_recents=signalements_recents)
+
+@app.route('/deconnexion-client')
+def deconnexion_client():
+    """Déconnexion du client"""
+    session.clear()
+    flash('Vous avez été déconnecté avec succès', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/mot-de-passe-oublie', methods=['GET', 'POST'])
+def mot_de_passe_oublie():
+    """Page pour mot de passe oublié"""
+    if request.method == 'POST':
+        telephone = request.form.get('telephone', '').strip()
+        
+        client = Client.query.filter_by(telephone=telephone).first()
+        if client and client.email:
+            # Simuler l'envoi d'email
+            flash(f'Un email de réinitialisation a été envoyé à {client.email}', 'success')
+        else:
+            flash('Aucun compte trouvé avec ce numéro de téléphone', 'danger')
+    
+    return render_template('client/mot_de_passe_oublie.html')
 
 @app.route('/annulation', methods=['GET', 'POST'])
 def annulation_signalement():

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion Client - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .connexion-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .login-icon {
+        font-size: 5rem;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+    }
+    .feature-list {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .feature-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .feature-item:last-child {
+        border-bottom: none;
+    }
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div class="login-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <h2 class="mb-3">Connexion client</h2>
+            <p class="lead">Accédez à votre espace personnel</p>
+        </div>
+    </div>
+
+    <!-- Formulaire de connexion -->
+    <div class="connexion-form">
+        <form method="POST" id="connexionForm">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Connexion à votre compte
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="mb-3">
+                        <label for="telephone" class="form-label">
+                            <i class="fas fa-phone me-1"></i>
+                            Téléphone
+                        </label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" 
+                               required placeholder="77XXXXXXXX" 
+                               pattern="[0-9]{9}" maxlength="9"
+                               value="{{ request.form.telephone or '' }}">
+                        <small class="form-text text-muted">
+                            Numéro de téléphone sans indicatif
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-1"></i>
+                            Mot de passe
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               required placeholder="Entrez votre mot de passe">
+                    </div>
+
+                    <div class="mb-3 remember-me">
+                        <input type="checkbox" id="remember" name="remember" value="1">
+                        <label for="remember">
+                            Se souvenir de moi
+                        </label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            Se connecter
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('mot_de_passe_oublie') }}" class="text-decoration-none">
+                            <i class="fas fa-key me-1"></i>
+                            Mot de passe oublié ?
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Fonctionnalités -->
+    <div class="feature-list">
+        <h5 class="mb-3">
+            <i class="fas fa-star me-2"></i>
+            Avec votre compte client, vous pouvez :
+        </h5>
+        <div class="feature-item">
+            <i class="fas fa-wifi text-primary me-2"></i>
+            <strong>Signaler des problèmes</strong> - Déclarer rapidement vos pannes WiFi
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-search text-success me-2"></i>
+            <strong>Vérifier l'état</strong> - Suivre l'évolution de vos demandes en temps réel
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-times text-danger me-2"></i>
+            <strong>Annuler une demande</strong> - Supprimer un signalement si nécessaire
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-history text-info me-2"></i>
+            <strong>Historique complet</strong> - Consulter toutes vos interventions passées
+        </div>
+        <div class="feature-item">
+            <i class="fas fa-bell text-warning me-2"></i>
+            <strong>Notifications</strong> - Recevoir des alertes par email
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('inscription') }}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Créer un compte
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('signaler') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nouveau signalement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-format phone number
+document.getElementById('telephone').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

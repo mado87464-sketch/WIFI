@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Mot de Passe Oublié - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .forgot-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    .reset-icon {
+        font-size: 5rem;
+        color: #007bff;
+        margin-bottom: 1.5rem;
+    }
+    .info-steps {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .step-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .step-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div class="reset-icon">
+                <i class="fas fa-key"></i>
+            </div>
+            <h2 class="mb-3">Mot de passe oublié</h2>
+            <p class="lead">Réinitialisez votre mot de passe en quelques étapes</p>
+        </div>
+    </div>
+
+    <!-- Formulaire de réinitialisation -->
+    <div class="forgot-form">
+        <form method="POST">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-key me-2"></i>
+                        Réinitialiser le mot de passe
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="mb-3">
+                        <label for="telephone" class="form-label">
+                            <i class="fas fa-phone me-1"></i>
+                            Numéro de téléphone
+                        </label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" 
+                               required placeholder="77XXXXXXXX" 
+                               pattern="[0-9]{9}" maxlength="9"
+                               value="{{ request.form.telephone or '' }}">
+                        <small class="form-text text-muted">
+                            Entrez le numéro de téléphone associé à votre compte
+                        </small>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Envoyer le lien de réinitialisation
+                        </button>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Comment ça fonctionne ?
+                        </h6>
+                        <ul class="mb-0">
+                            <li>1. Entrez votre numéro de téléphone</li>
+                            <li>2. Cliquez sur "Envoyer"</li>
+                            <li>3. Recevez un email avec un lien de réinitialisation</li>
+                            <li>4. Cliquez sur le lien dans l'email</li>
+                            <li>5. Choisissez votre nouveau mot de passe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Étapes du processus -->
+    <div class="info-steps">
+        <h5 class="mb-3">
+            <i class="fas fa-list-ol me-2"></i>
+            Processus de réinitialisation
+        </h5>
+        <div class="step-item">
+            <i class="fas fa-phone text-primary me-2"></i>
+            <strong>Étape 1:</strong> Entrez votre numéro de téléphone associé à votre compte
+        </div>
+        <div class="step-item">
+            <i class="fas fa-envelope text-success me-2"></i>
+            <strong>Étape 2:</strong> Recevez un email avec un lien sécurisé
+        </div>
+        <div class="step-item">
+            <i class="fas fa-link text-info me-2"></i>
+            <strong>Étape 3:</strong> Cliquez sur le lien pour définir votre nouveau mot de passe
+        </div>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 4:</strong> Connectez-vous avec votre nouveau mot de passe
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="text-center mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{{ url_for('connexion_client') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la connexion
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('inscription') }}" class="btn btn-success">
+                    <i class="fas fa-user-plus me-2"></i>Créer un compte
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>Page d'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-format phone number
+document.getElementById('telephone').addEventListener('input', function(e) {
+    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

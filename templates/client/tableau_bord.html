@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord Client - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 2rem 0;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+    .welcome-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    .welcome-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,123,255,0.2);
+    }
+    .stat-card {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        line-height: 1;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .recent-signalement {
+        border-left: 4px solid #28a745;
+        transition: all 0.3s ease;
+    }
+    .recent-signalement:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40,167,69,0.2);
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+    }
+    .quick-actions {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+    .quick-btn {
+        display: block;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+    .quick-btn:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- En-tête avec informations client -->
+    <div class="dashboard-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-0">
+                    <i class="fas fa-user me-3"></i>
+                    Bonjour {{ client.prenom }} {{ client.nom }} !
+                </h2>
+                <p class="mb-0 opacity-75">
+                    Bienvenue dans votre espace personnel - Dernière connexion: {{ session.last_login or 'Première connexion' }}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <small class="d-block">Compte créé le</small>
+                        <strong>{{ client.date_creation.strftime('%d/%m/%Y') }}</strong>
+                    </div>
+                    <a href="{{ url_for('deconnexion_client') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ total_signalements }}</div>
+                    <div class="stat-label">Total signalements</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ signalements_resolus }}</div>
+                    <div class="stat-label">Résolus</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-warning text-white">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ signalements_en_cours }}</div>
+                    <div class="stat-label">En cours</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body text-center">
+                    <div class="stat-number">{{ signalements_en_attente }}</div>
+                    <div class="stat-label">En attente</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card welcome-card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <a href="{{ url_for('signaler') }}" class="btn btn-primary w-100">
+                                <i class="fas fa-plus me-2"></i>
+                                Nouveau signalement
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="{{ url_for('verification_signalement') }}" class="btn btn-success w-100">
+                                <i class="fas fa-search me-2"></i>
+                                Vérifier état
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="{{ url_for('annulation_signalement') }}" class="btn btn-danger w-100">
+                                <i class="fas fa-times me-2"></i>
+                                Annuler demande
+                            </a>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <a href="{{ url_for('historique_client') }}" class="btn btn-info w-100">
+                                <i class="fas fa-history me-2"></i>
+                                Historique
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Mon profil
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Nom:</strong></div>
+                        <div class="col-sm-8">{{ client.nom }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Prénom:</strong></div>
+                        <div class="col-sm-8">{{ client.prenom }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Téléphone:</strong></div>
+                        <div class="col-sm-8">{{ client.telephone }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Email:</strong></div>
+                        <div class="col-sm-8">{{ client.email or 'Non renseigné' }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Zone:</strong></div>
+                        <div class="col-sm-8">{{ client.zone }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4"><strong>Inscrit le:</strong></div>
+                        <div class="col-sm-8">{{ client.date_creation.strftime('%d/%m/%Y à %H:%M') }}</div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ url_for('modifier_profil_client') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i>
+                            Modifier mon profil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signalements récents -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>
+                        Vos signalements récents
+                        <a href="{{ url_for('historique_client') }}" class="btn btn-sm btn-outline-primary float-end">
+                            <i class="fas fa-list me-1"></i>
+                            Voir tout
+                        </a>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if signalements_recents %}
+                        {% for signalement in signalement_recents %}
+                        <div class="recent-signalement mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        #{{ signalement.id }} - {{ signalement.description[:50] }}{% if signalement.description|length > 50 %}...{% endif %}
+                                    </h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="status-badge badge badge-{{ signalement.statut }}">
+                                            {{ signalement.statut_display }}
+                                        </span>
+                                        {% if signalement.technicien_assigne %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ signalement.technicien_assigne }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block mb-1">
+                                        {{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}
+                                    </small>
+                                    <a href="{{ url_for('suivi_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>
+                                        Détails
+                                    </a>
+                                    {% if signalement.statut in ['nouveau', 'en_attente'] %}
+                                    <a href="{{ url_for('annuler_signalement') }}?phone={{ client.telephone }}" 
+                                       class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-times me-1"></i>
+                                        Annuler
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucun signalement</h5>
+                            <p class="text-muted">
+                                Vous n'avez pas encore fait de signalement.<br>
+                                <a href="{{ url_for('signaler') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>
+                                    Faire votre premier signalement
+                                </a>
+                            </p>
+                        </div>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions flottantes -->
+<div class="quick-actions">
+    <a href="{{ url_for('signaler') }}" class="quick-btn btn-primary" title="Nouveau signalement">
+        <i class="fas fa-plus"></i>
+    </a>
+    <a href="{{ url_for('verification_signalement') }}" class="quick-btn btn-success" title="Vérifier état">
+        <i class="fas fa-search"></i>
+    </a>
+    <a href="{{ url_for('annulation_signalement') }}" class="quick-btn btn-danger" title="Annuler demande">
+        <i class="fas fa-times"></i>
+    </a>
+</div>
+{% endblock %}
