@@ -12,31 +12,43 @@
         </p>
         
         <div class="row mt-4">
-            <div class="col-md-6 mb-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-search fa-3x text-primary mb-3"></i>
-                        <h5 class="card-title">Vérifier mon signalement</h5>
-                        <p class="card-text">Suivez l'état de votre demande existante</p>
-                        <a href="{{ url_for('verification_signalement') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-search me-2"></i>Vérifier
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-phone fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Contacter le support</h5>
-                        <p class="card-text">Besoin d'aide ? Contactez notre équipe</p>
-                        <a href="#" class="btn btn-outline-success">
-                            <i class="fas fa-headset me-2"></i>Support
-                        </a>
-                    </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Vérifier mon signalement</h5>
+                    <p class="card-text">Suivez l'état de votre demande existante</p>
+                    <a href="{{ url_for('verification_signalement') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-2"></i>Vérifier
+                    </a>
                 </div>
             </div>
         </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-times fa-3x text-danger mb-3"></i>
+                    <h5 class="card-title">Annuler un signalement</h5>
+                    <p class="card-text">Annulez une demande si elle n'est plus nécessaire</p>
+                    <a href="{{ url_for('annulation_signalement') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-phone fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Contacter le support</h5>
+                    <p class="card-text">Besoin d'aide ? Contactez notre équipe</p>
+                    <a href="#" class="btn btn-outline-success">
+                        <i class="fas fa-headset me-2"></i>Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
         
         <div class="row mt-5">
             <div class="col-md-4 mb-4">

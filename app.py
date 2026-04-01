@@ -194,6 +194,65 @@ def verification_signalement():
                          signalements=signalements, 
                          no_results=no_results)
 
+@app.route('/annulation', methods=['GET', 'POST'])
+def annulation_signalement():
+    """Page d'annulation pour les clients"""
+    signalements = []
+    no_results = False
+    
+    if request.method == 'POST':
+        phone = request.form.get('phone', '').strip()
+        
+        if phone:
+            # Rechercher les signalements annulables du client
+            client = Client.query.filter_by(telephone=phone).first()
+            if client:
+                signalements = Signalement.query.filter_by(client_id=client.id)\
+                    .filter(Signalement.statut.in_(['nouveau', 'en_attente']))\
+                    .order_by(Signalement.date_signalement.desc()).all()
+            else:
+                no_results = True
+        else:
+            no_results = True
+    
+    return render_template('client/annulation.html', 
+                         signalements=signalements, 
+                         no_results=no_results)
+
+@app.route('/annuler-signalement/<int:signalement_id>', methods=['POST'])
+def annuler_signalement_action():
+    """Action d'annulation d'un signalement"""
+    signalement = Signalement.query.get_or_404(signalement_id)
+    reason = request.form.get('reason', '')
+    
+    # Vérifier que le signalement peut être annulé
+    if signalement.statut not in ['nouveau', 'en_attente']:
+        flash('Ce signalement ne peut plus être annulé', 'danger')
+        return redirect(url_for('annulation_signalement'))
+    
+    # Mettre à jour le signalement
+    signalement.statut = 'annule'
+    signalement.date_annulation = datetime.utcnow()
+    signalement.motif_annulation = reason
+    
+    # Libérer le technicien si assigné
+    if signalement.technicien_id:
+        technicien = Technicien.query.get(signalement.technicien_id)
+        if technicien:
+            technicien.interventions_en_cours = max(0, technicien.interventions_en_cours - 1)
+            technicien.disponibilite = 'disponible'
+    
+    db.session.commit()
+    
+    # Envoyer notification (simulation)
+    print(f"🚫 Signalement #{signalement.id} annulé")
+    print(f"📱 Client: {signalement.client.telephone}")
+    print(f"💬 Raison: {reason if reason else 'Non spécifiée'}")
+    print(f"📅 Date annulation: {signalement.date_annulation.strftime('%d/%m/%Y %H:%M')}")
+    
+    flash(f'Signalement #{signalement.id} a été annulé avec succès', 'success')
+    return redirect(url_for('annulation_signalement'))
+
 @app.route('/verification-par-id', methods=['GET', 'POST'])
 def verification_par_id():
     """Vérification par numéro de signalement"""
