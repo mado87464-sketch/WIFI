@@ -118,6 +118,212 @@
             </div>
         </div>
         
+        <!-- Section Services -->
+        <div class="row mt-5">
+            <div class="col-12 mb-5">
+                <div class="text-center">
+                    <h2 class="fw-bold mb-4">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        Nos Services
+                    </h2>
+                    <p class="lead text-muted mb-5">
+                        Une solution complète pour tous vos problèmes de connexion WiFi
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg gradient-success">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="icon-circle bg-success text-white">
+                                <i class="fas fa-bolt fa-2x"></i>
+                            </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-white">Rapide</h5>
+                        <p class="card-text text-white-50">Signalez votre problème en quelques minutes seulement</p>
+                        <a href="{{ url_for('signaler') }}" class="btn btn-light btn-lg mt-3">
+                            <i class="fas fa-arrow-right me-2"></i>Signaler maintenant
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg gradient-primary">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="icon-circle bg-primary text-white">
+                                <i class="fas fa-tools fa-2x"></i>
+                            </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-white">Efficace</h5>
+                        <p class="card-text text-white-50">Nos techniciens qualifiés interviennent rapidement</p>
+                        <a href="{{ url_for('login_agent') }}" class="btn btn-light btn-lg mt-3">
+                            <i class="fas fa-user-tie me-2"></i>Espace Agent
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg gradient-info">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="icon-circle bg-info text-white">
+                                <i class="fas fa-mobile-alt fa-2x"></i>
+                            </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-white">Simple</h5>
+                        <p class="card-text text-white-50">Pas besoin d'appeler, tout se fait en ligne</p>
+                        <a href="{{ url_for('connexion_client') }}" class="btn btn-light btn-lg mt-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Connexion Client
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg gradient-warning">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <div class="icon-circle bg-warning text-white">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                        <h5 class="card-title fw-bold text-white">Suivi</h5>
+                        <p class="card-text text-white-50">Suivez l'état de vos demandes en temps réel</p>
+                        <a href="{{ url_for('verification') }}" class="btn btn-light btn-lg mt-3">
+                            <i class="fas fa-search me-2"></i>Vérifier état
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section Statistiques -->
+        <div class="row mt-5">
+            <div class="col-12 mb-5">
+                <div class="text-center">
+                    <h2 class="fw-bold mb-4">
+                        <i class="fas fa-chart-bar text-info me-2"></i>
+                        Nos Statistiques
+                    </h2>
+                    <p class="lead text-muted mb-5">
+                        Des performances mesurables pour votre satisfaction
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-clock fa-3x text-success"></i>
+                        </div>
+                        <h3 class="fw-bold text-success">95%</h3>
+                        <p class="text-muted">Intervention sous 24h</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-users fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="fw-bold text-primary">1500+</h3>
+                        <p class="text-muted">Clients satisfaits</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-award fa-3x text-warning"></i>
+                        </div>
+                        <h3 class="fw-bold text-warning">4.8/5</h3>
+                        <p class="text-muted">Note de satisfaction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section Témoignages -->
+        <div class="row mt-5">
+            <div class="col-12 mb-5">
+                <div class="text-center">
+                    <h2 class="fw-bold mb-4">
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        Ce Que Disent Nos Clients
+                    </h2>
+                    <p class="lead text-muted mb-5">
+                        Découvrez les témoignages de nos utilisateurs
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <img src="https://picsum.photos/seed/user1/60/60" class="rounded-circle" alt="Client">
+                        </div>
+                        <h5 class="fw-bold">Marie K.</h5>
+                        <p class="text-muted">"Service rapide et efficace!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <img src="https://picsum.photos/seed/user2/60/60" class="rounded-circle" alt="Client">
+                        </div>
+                        <h5 class="fw-bold">Jean B.</h5>
+                        <p class="text-muted">"Techniciens compétents et disponibles!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <img src="https://picsum.photos/seed/user3/60/60" class="rounded-circle" alt="Client">
+                        </div>
+                        <h5 class="fw-bold">Fatou S.</h5>
+                        <p class="text-muted">"Interface simple et intuitive!"</p>
+                        <div class="text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="mt-5">
             <a href="{{ url_for('signaler') }}" class="btn btn-wifi btn-lg me-3">
                 Signaler une panne
