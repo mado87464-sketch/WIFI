@@ -129,7 +129,6 @@ class Signalement(db.Model):
     technicien_id = db.Column(db.Integer, db.ForeignKey('technicien.id'), nullable=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)
     agent = db.relationship('Agent', foreign_keys=[agent_id], backref='signalements_geres')
-    agent_resolution_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)
     notes_agent = db.Column(db.Text)
     date_prise_en_charge = db.Column(db.DateTime)
     urgence = db.Column(db.String(20), default='normale')  # basse, normale, haute, urgente
