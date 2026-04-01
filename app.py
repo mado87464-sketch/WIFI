@@ -143,7 +143,6 @@ class Signalement(db.Model):
     pieces_utilisees = db.Column(db.String(500))  # Pièces utilisées
     recommandations = db.Column(db.Text)  # Recommandations
     confirmation_client = db.Column(db.String(20), default='non')  # Confirmation du client
-    agent_resolution_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)  # Agent qui a résolu
 
     @property
     def statut_display(self):
@@ -218,7 +217,6 @@ def resoudre_signalement(signalement_id):
         signalement.pieces_utilisees = pieces_utilisees
         signalement.recommandations = recommandations
         signalement.confirmation_client = confirmation_client
-        signalement.agent_resolution_id = session['agent_id']
         
         # Libérer le technicien si assigné
         if signalement.technicien_id:
