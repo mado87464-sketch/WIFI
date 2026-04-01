@@ -137,6 +137,12 @@ class Signalement(db.Model):
     date_resolution = db.Column(db.DateTime)  # Date de résolution
     rapport_intervention = db.Column(db.Text)  # Rapport d'intervention
     duree_intervention = db.Column(db.String(50))  # Durée de l'intervention
+    actions_resolution = db.Column(db.Text)  # Actions effectuées pour résolution
+    temps_intervention = db.Column(db.String(20))  # Temps en minutes
+    pieces_utilisees = db.Column(db.String(500))  # Pièces utilisées
+    recommandations = db.Column(db.Text)  # Recommandations
+    confirmation_client = db.Column(db.String(20), default='non')  # Confirmation du client
+    agent_resolution_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=True)  # Agent qui a résolu
 
     @property
     def statut_display(self):
