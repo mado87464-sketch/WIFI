@@ -171,6 +171,52 @@ def superviseur_required(f):
 def index():
     return render_template('index.html')
 
+@app.route('/verification', methods=['GET', 'POST'])
+def verification_signalement():
+    """Page de vérification pour les clients"""
+    signalements = []
+    no_results = False
+    
+    if request.method == 'POST':
+        search_value = request.form.get('phone', '').strip()
+        
+        if search_value:
+            # Rechercher par téléphone du client
+            client = Client.query.filter_by(telephone=search_value).first()
+            if client:
+                signalements = Signalement.query.filter_by(client_id=client.id).order_by(Signalement.date_signalement.desc()).all()
+            else:
+                no_results = True
+        else:
+            no_results = True
+    
+    return render_template('client/verification.html', 
+                         signalements=signalements, 
+                         no_results=no_results)
+
+@app.route('/verification-par-id', methods=['GET', 'POST'])
+def verification_par_id():
+    """Vérification par numéro de signalement"""
+    signalements = []
+    no_results = False
+    
+    if request.method == 'POST':
+        signalement_id = request.form.get('signalement_id', '').strip()
+        
+        try:
+            signalement_id = int(signalement_id)
+            signalement = Signalement.query.get(signalement_id)
+            if signalement:
+                signalements = [signalement]
+            else:
+                no_results = True
+        except ValueError:
+            no_results = True
+    
+    return render_template('client/verification.html', 
+                         signalements=signalements, 
+                         no_results=no_results)
+
 @app.route('/suivi-signalement/<int:signalement_id>')
 def suivi_signalement(signalement_id):
     """Page de suivi pour les clients"""

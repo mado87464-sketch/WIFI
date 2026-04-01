@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Vérification de Signalement - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verification-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .search-icon {
+        font-size: 4rem;
+        color: #007bff;
+        margin-bottom: 1rem;
+    }
+    .result-card {
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    .result-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,123,255,0.2);
+    }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 15px;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #dee2e6;
+    }
+    .timeline-item.completed::before {
+        background: #28a745;
+    }
+    .timeline-item.current::before {
+        background: #007bff;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .countdown-timer {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .no-results {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    .search-methods {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .search-method {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .search-method:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    .search-method.active {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div class="search-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h2 class="mb-3">Vérifier l'état de votre signalement</h2>
+            <p class="lead">Suivez l'évolution de votre demande d'intervention WiFi</p>
+        </div>
+    </div>
+
+    <!-- Méthodes de recherche -->
+    <div class="search-methods">
+        <div class="search-method active" onclick="setSearchMethod('phone')">
+            <i class="fas fa-phone fa-2x mb-2 text-primary"></i>
+            <h6>Par téléphone</h6>
+            <small class="text-muted">Utilisez votre numéro de téléphone</small>
+        </div>
+        <div class="search-method" onclick="setSearchMethod('id')">
+            <i class="fas fa-hashtag fa-2x mb-2 text-secondary"></i>
+            <h6>Par numéro</h6>
+            <small class="text-muted">Utilisez votre numéro de signalement</small>
+        </div>
+    </div>
+
+    <!-- Formulaire de recherche -->
+    <div class="verification-form">
+        <form method="POST" id="searchForm" action="{% if currentMethod == 'phone' %}{{ url_for('verification_signalement') }}{% else %}{{ url_for('verification_par_id') }}{% endif %}">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        <span id="formTitle">Rechercher par téléphone</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="searchValue" class="form-label">
+                            <i class="fas fa-phone me-1"></i>
+                            <span id="formLabel">Numéro de téléphone</span>
+                        </label>
+                        <input type="text" class="form-control" id="searchValue" name="search_value" 
+                               placeholder="Ex: 771234567" required
+                               pattern="[0-9]{9}" maxlength="9">
+                        <small class="form-text text-muted">
+                            Entrez votre numéro de téléphone sans indicatif
+                        </small>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i>
+                            Rechercher mon signalement
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Résultats -->
+    {% if signalements %}
+    <div class="mt-4">
+        <div class="alert alert-success">
+            <h5 class="alert-heading">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ signalements|length }} signalement(s) trouvé(s)
+            </h5>
+            <p class="mb-0">Voici l'état actuel de vos demandes</p>
+        </div>
+
+        {% for signalement in signalements %}
+        <div class="card result-card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">
+                        <i class="fas fa-wifi me-2"></i>
+                        Signalement #{{ signalement.id }}
+                    </h6>
+                    <small class="text-muted">
+                        {{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}
+                    </small>
+                </div>
+                <div class="status-badge badge badge-{{ signalement.statut }}">
+                    {{ signalement.statut_display }}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="mb-2">
+                            <strong>Problème:</strong> {{ signalement.description[:100] }}{% if signalement.description|length > 100 %}...{% endif %}
+                        </p>
+                        
+                        {% if signalement.technicien_assigne %}
+                        <p class="mb-2">
+                            <strong>Technicien:</strong> {{ signalement.technicien_assigne }}
+                        </p>
+                        {% endif %}
+                        
+                        {% if signalement.delai_intervention %}
+                        <p class="mb-2">
+                            <strong>Délai:</strong> 
+                            <span class="countdown-timer">{{ signalement.delai_intervention }}</span>
+                            {% if signalement.date_intervention %}
+                                <br><small class="text-muted">Prévu: {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}</small>
+                            {% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{{ url_for('suivi_signalement', signalement_id=signalement.id) }}" 
+                           class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-1"></i> Voir détails
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Timeline simplifiée -->
+                <div class="mt-3">
+                    <div class="timeline-item completed">
+                        <small class="text-muted">📝 Signalement enregistré</small>
+                    </div>
+                    {% if signalement.date_prise_en_charge %}
+                    <div class="timeline-item completed">
+                        <small class="text-muted">✅ Prise en charge</small>
+                    </div>
+                    {% endif %}
+                    {% if signalement.technicien_assigne %}
+                    <div class="timeline-item {% if signalement.statut == 'en_attente' %}current{% else %}completed{% endif %}">
+                        <small class="text-muted">🔧 Technicien assigné</small>
+                    </div>
+                    {% endif %}
+                    {% if signalement.statut == 'en_cours' %}
+                    <div class="timeline-item current">
+                        <small class="text-muted">⚠️ Intervention en cours</small>
+                    </div>
+                    {% endif %}
+                    {% if signalement.statut == 'resolu' %}
+                    <div class="timeline-item completed">
+                        <small class="text-muted">✅ Intervention terminée</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if no_results %}
+    <div class="no-results">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h5>Aucun signalement trouvé</h5>
+            <p class="mb-0">
+                Vérifiez que votre numéro de téléphone est correct.<br>
+                Si vous venez de faire un signalement, attendez quelques minutes avant de vérifier.
+            </p>
+            <div class="mt-3">
+                <a href="{{ url_for('signaler') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Faire un nouveau signalement
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="text-center mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{{ url_for('signaler') }}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Nouveau signalement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentMethod = 'phone';
+
+function setSearchMethod(method) {
+    currentMethod = method;
+    
+    // Update UI
+    document.querySelectorAll('.search-method').forEach(el => {
+        el.classList.remove('active');
+    });
+    event.target.closest('.search-method').classList.add('active');
+    
+    // Update form
+    const formTitle = document.getElementById('formTitle');
+    const formLabel = document.getElementById('formLabel');
+    const searchValue = document.getElementById('searchValue');
+    const formText = searchValue.nextElementSibling;
+    const searchForm = document.getElementById('searchForm');
+    
+    if (method === 'phone') {
+        formTitle.textContent = 'Rechercher par téléphone';
+        formLabel.textContent = 'Numéro de téléphone';
+        searchValue.placeholder = 'Ex: 771234567';
+        searchValue.pattern = '[0-9]{9}';
+        searchValue.maxLength = 9;
+        searchValue.name = 'phone';
+        formText.textContent = 'Entrez votre numéro de téléphone sans indicatif';
+        searchForm.action = '/verification';
+    } else {
+        formTitle.textContent = 'Rechercher par numéro';
+        formLabel.innerHTML = '<i class="fas fa-hashtag me-1"></i>Numéro de signalement';
+        searchValue.placeholder = 'Ex: 12345';
+        searchValue.pattern = '[0-9]+';
+        searchValue.maxLength = 10;
+        searchValue.name = 'signalement_id';
+        formText.textContent = 'Entrez votre numéro de signalement';
+        searchForm.action = '/verification-par-id';
+    }
+}
+
+// Auto-format phone number
+document.getElementById('searchValue').addEventListener('input', function(e) {
+    if (currentMethod === 'phone') {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    }
+});
+</script>
+{% endblock %}

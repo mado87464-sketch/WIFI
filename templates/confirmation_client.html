@@ -48,20 +48,17 @@
                 <div class="card-body text-center">
                     <p class="mb-3">Vous pouvez suivre l'état de votre intervention en temps réel</p>
                     <a href="{{ url_for('suivi_signalement', signalement_id=signalement.id) }}" 
-                       class="btn btn-success btn-lg">
+                       class="btn btn-success btn-lg me-2">
                         <i class="fas fa-eye me-2"></i>Voir le suivi
+                    </a>
+                    <a href="{{ url_for('verification_signalement') }}" 
+                       class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Vérifier par téléphone
                     </a>
                     <div class="mt-3">
                         <small class="text-muted">
                             URL directe: {{ url_for('suivi_signalement', signalement_id=signalement.id, _external=True) }}
                         </small>
-                    </div>
-                        <div class="col-sm-4"><strong>Description:</strong></div>
-                        <div class="col-sm-8">{{ signalement.description }}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4"><strong>Date du signalement:</strong></div>
-                        <div class="col-sm-8">{{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-4"><strong>Statut:</strong></div>
