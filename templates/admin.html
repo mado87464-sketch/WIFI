@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - Signalement WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+    }
+    .badge-en-attente { background-color: #ffc107; }
+    .badge-en-cours { background-color: #17a2b8; }
+    .badge-resolu { background-color: #28a745; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-main">
+    <div class="mb-4">
+        <h2 class="mb-3">🔧 Administration des Signalements</h2>
+        <div class="row" id="stats-container">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3 id="total-signalements">-</h3>
+                    <p>Total</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3 id="en-attente">-</h3>
+                    <p>En attente</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3 id="en-cours">-</h3>
+                    <p>En cours</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3 id="resolu">-</h3>
+                    <p>Résolu</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📋 Liste des signalements</h5>
+            <div>
+                <button class="btn btn-sm btn-outline-primary" onclick="refreshData()">
+                    🔄 Actualiser
+                </button>
+                <button class="btn btn-sm btn-outline-success" onclick="exportData()">
+                    📥 Exporter
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                            <th>Téléphone</th>
+                            <th>Zone</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Technicien</th>
+                            <th>Délai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signalements-tbody">
+                        {% for signalement in signalements %}
+                        <tr>
+                            <td>#{{ signalement.id }}</td>
+                            <td>{{ signalement.client.prenom }} {{ signalement.client.nom }}</td>
+                            <td>{{ signalement.client.telephone }}</td>
+                            <td>{{ signalement.client.zone }}</td>
+                            <td>{{ signalement.description[:50] }}{% if signalement.description|length > 50 %}...{% endif %}</td>
+                            <td>{{ signalement.date_signalement.strftime('%d/%m %H:%M') }}</td>
+                            <td>
+                                <span class="badge badge-{{ signalement.statut|replace(' ', '-') }}">
+                                    {{ signalement.statut|title }}
+                                </span>
+                            </td>
+                            <td>{{ signalement.technicien_assigne or '-' }}</td>
+                            <td>{{ signalement.delai_intervention or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h5>📊 Visualisation des données</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <canvas id="statutChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="zoneChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Charger les statistiques
+async function loadStats() {
+    try {
+        const response = await fetch('/api/statistiques');
+        const stats = await response.json();
+        
+        document.getElementById('total-signalements').textContent = stats.total;
+        document.getElementById('en-attente').textContent = stats.en_attente;
+        document.getElementById('en-cours').textContent = stats.en_cours;
+        document.getElementById('resolu').textContent = stats.resolu;
+        
+        updateCharts(stats);
+    } catch (error) {
+        console.error('Erreur lors du chargement des statistiques:', error);
+    }
+}
+
+// Mettre à jour les graphiques
+function updateCharts(stats) {
+    const statutCtx = document.getElementById('statutChart').getContext('2d');
+    new Chart(statutCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['En attente', 'En cours', 'Résolu'],
+            datasets: [{
+                data: [stats.en_attente, stats.en_cours, stats.resolu],
+                backgroundColor: ['#ffc107', '#17a2b8', '#28a745']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Répartition par statut'
+                }
+            }
+        }
+    });
+}
+
+// Rafraîchir les données
+function refreshData() {
+    loadStats();
+    location.reload();
+}
+
+// Exporter les données
+function exportData() {
+    window.open('/api/signalements', '_blank');
+}
+
+// Charger les données au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+    
+    // Auto-rafraîchissement toutes les 30 secondes
+    setInterval(loadStats, 30000);
+});
+</script>
+{% endblock %}

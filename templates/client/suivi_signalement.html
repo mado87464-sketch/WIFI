@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Suivi de Signalement - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+        padding-left: 20px;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -23px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #6c757d;
+        border: 2px solid white;
+    }
+    .timeline-item.completed::before {
+        background: #28a745;
+    }
+    .timeline-item.current::before {
+        background: #007bff;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    .technician-card {
+        border-left: 4px solid #007bff;
+    }
+    .countdown-timer {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-2"><i class="fas fa-search me-2"></i>Suivi de votre Signalement</h2>
+                            <p class="mb-0">Suivez en temps réel l'état de votre demande d'intervention</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="h4 mb-0">#{{ signalement.id }}</div>
+                            <small>Numéro de référence</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- État actuel -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>État actuel</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="status-badge badge badge-{{ signalement.statut }} mb-3">
+                        {{ signalement.statut_display }}
+                    </div>
+                    {% if signalement.delai_intervention %}
+                        <div class="countdown-timer">
+                            <i class="fas fa-clock me-2"></i>
+                            {{ signalement.delai_intervention }}
+                        </div>
+                        {% if signalement.date_intervention %}
+                            <small class="text-muted">Prévu le: {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}</small>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Vos informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6"><strong>Nom:</strong></div>
+                        <div class="col-6">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"><strong>Téléphone:</strong></div>
+                        <div class="col-6">{{ signalement.client.telephone }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"><strong>Zone:</strong></div>
+                        <div class="col-6">{{ signalement.client.zone }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6"><strong>Date signalement:</strong></div>
+                        <div class="col-6">{{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline du suivi -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historique du traitement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <!-- Signalement créé -->
+                        <div class="timeline-item completed">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-success">📝 Signalement enregistré</h6>
+                                    <p class="mb-1">Votre demande a été reçue et enregistrée dans notre système</p>
+                                    <small class="text-muted">{{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prise en charge -->
+                        {% if signalement.date_prise_en_charge %}
+                        <div class="timeline-item completed">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-success">✅ Signalement pris en charge</h6>
+                                    <p class="mb-1">
+                                        Votre signalement est pris en charge par 
+                                        {% if signalement.agent %}
+                                            {{ signalement.agent.prenom }} {{ signalement.agent.nom }}
+                                        {% else %}
+                                            un agent du service
+                                        {% endif %}
+                                    </p>
+                                    <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m/%Y à %H:%M') }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Affectation technicien -->
+                        {% if signalement.technicien_assigne %}
+                        <div class="timeline-item {% if signalement.statut == 'en_attente' %}current{% else %}completed{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-primary">🔧 Technicien assigné</h6>
+                                    <p class="mb-1">
+                                        <strong>{{ signalement.technicien_assigne }}</strong> a été assigné à votre intervention
+                                        {% if signalement.technicien_obj %}
+                                            <br><small class="text-muted">Spécialité: {{ signalement.technicien_obj.specialite }}</small>
+                                        {% endif %}
+                                    </p>
+                                    {% if signalement.delai_intervention %}
+                                        <p class="mb-1">
+                                            <strong>Délai d'intervention:</strong> {{ signalement.delai_intervention }}
+                                            {% if signalement.date_intervention %}
+                                                <br><small class="text-muted">Prévu: {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}</small>
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                    {% if signalement.notes_agent %}
+                                        <div class="alert alert-light mt-2">
+                                            <small><strong>Notes:</strong> {{ signalement.notes_agent }}</small>
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m/%Y à %H:%M') if signalement.date_prise_en_charge else 'En cours' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Intervention en cours -->
+                        {% if signalement.statut == 'en_cours' %}
+                        <div class="timeline-item current">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-warning">⚠️ Intervention en cours</h6>
+                                    <p class="mb-1">Le technicien est actuellement sur site</p>
+                                    <small class="text-muted">En ce moment</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Résolu -->
+                        {% if signalement.statut == 'resolu' %}
+                        <div class="timeline-item completed">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="text-success">✅ Intervention terminée</h6>
+                                    <p class="mb-1">Votre problème a été résolu avec succès</p>
+                                    {% if signalement.rapport_intervention %}
+                                        <div class="alert alert-success mt-2">
+                                            <small><strong>Rapport:</strong> {{ signalement.rapport_intervention }}</small>
+                                        </div>
+                                    {% endif %}
+                                    {% if signalement.duree_intervention %}
+                                        <p class="mb-1"><strong>Durée:</strong> {{ signalement.duree_intervention }}</p>
+                                    {% endif %}
+                                    <small class="text-muted">{{ signalement.date_resolution.strftime('%d/%m/%Y à %H:%M') if signalement.date_resolution else 'Récemment' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations du technicien -->
+    {% if signalement.technicien_obj %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card technician-card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Informations du technicien</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="avatar-lg rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                                {{ signalement.technicien_obj.prenom[0]|upper }}{{ signalement.technicien_obj.nom[0]|upper }}
+                            </div>
+                            <h5>{{ signalement.technicien_obj.nom_complet }}</h5>
+                            <span class="badge bg-info">{{ signalement.technicien_obj.specialite }}</span>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Téléphone:</strong> {{ signalement.technicien_obj.telephone }}</p>
+                                    <p><strong>Email:</strong> {{ signalement.technicien_obj.email }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Zone couverte:</strong> {{ signalement.technicien_obj.zone_couverture }}</p>
+                                    <p><strong>Statut:</strong> {{ signalement.technicien_obj.statut_display }}</p>
+                                </div>
+                            </div>
+                            {% if signalement.technicien_obj.interventions_en_cours > 0 %}
+                                <div class="alert alert-info mt-2">
+                                    <small><i class="fas fa-info-circle me-1"></i>Le technicien a {{ signalement.technicien_obj.interventions_en_cours }} intervention(s) en cours</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Détails du problème -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-wifi me-2"></i>Détails de votre signalement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Description du problème:</strong></p>
+                            <p class="text-muted">{{ signalement.description }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if signalement.urgence %}
+                                <p><strong>Urgence:</strong> 
+                                    <span class="badge 
+                                        {% if signalement.urgence == 'urgente' %}bg-danger
+                                        {% elif signalement.urgence == 'haute' %}bg-warning
+                                        {% elif signalement.urgence == 'normale' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ signalement.urgence|title }}
+                                    </span>
+                                </p>
+                            {% endif %}
+                            {% if signalement.type_probleme %}
+                                <p><strong>Type de problème:</strong> {{ signalement.type_probleme }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages et notifications -->
+    {% if signalement.message_client %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Dernier message reçu</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <p class="mb-0">{{ signalement.message_client }}</p>
+                        <small class="text-muted">Envoyé le: {{ signalement.date_prise_en_charge.strftime('%d/%m/%Y à %H:%M') if signalement.date_prise_en_charge else 'Récemment' }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Retour à l'accueil
+                            </a>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            {% if signalement.statut in ['nouveau', 'en_attente'] %}
+                                <button class="btn btn-warning" onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Imprimer le suivi
+                                </button>
+                            {% endif %}
+                            {% if signalement.statut == 'resolu' %}
+                                <a href="{{ url_for('signaler') }}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Nouveau signalement
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Timer pour le décompte si nécessaire
+{% if signalement.date_intervention and signalement.statut == 'en_attente' %}
+function updateCountdown() {
+    const interventionDate = new Date('{{ signalement.date_intervention.strftime("%Y-%m-%dT%H:%M:%S") }}');
+    const now = new Date();
+    const diff = interventionDate - now;
+    
+    if (diff > 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const timerElement = document.querySelector('.countdown-timer');
+        if (timerElement) {
+            timerElement.innerHTML = `<i class="fas fa-clock me-2"></i>${hours}h ${minutes}min`;
+        }
+    } else {
+        const timerElement = document.querySelector('.countdown-timer');
+        if (timerElement) {
+            timerElement.innerHTML = '<i class="fas fa-clock me-2"></i>En cours';
+        }
+    }
+}
+
+setInterval(updateCountdown, 60000);
+updateCountdown();
+{% endif %}
+</script>
+{% endblock %}

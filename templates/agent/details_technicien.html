@@ -1,0 +1,236 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Détails Technicien - {{ technicien.nom_complet }}{% endblock %}
+{% block page_title %}Détails du Technicien{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du technicien -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ technicien.nom_complet }}</h5>
+                <span class="badge 
+                    {% if technicien.disponibilite == 'disponible' %}bg-success
+                    {% elif technicien.disponibilite == 'occupe' %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    {{ technicien.statut_display }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Spécialité</label>
+                            <div class="fw-bold">{{ technicien.specialite }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Téléphone</label>
+                            <div>{{ technicien.telephone }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Email</label>
+                            <div>{{ technicien.email }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Zone couverte</label>
+                            <div>{{ technicien.zone_couverture }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Date d'embauche</label>
+                            <div>{{ technicien.date_embauche.strftime('%d/%m/%Y') }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Disponibilité</label>
+                            <div>
+                                {% if technicien.disponibilite == 'disponible' %}
+                                    <span class="text-success">✅ Disponible immédiatement</span>
+                                {% elif technicien.disponibilite == 'occupe' %}
+                                    <span class="text-warning">🔧 En intervention</span>
+                                {% else %}
+                                    <span class="text-secondary">🏖️ En congé</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques d'intervention</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <div class="h3 mb-0 text-primary">{{ technicien.interventions_en_cours }}</div>
+                        <small class="text-muted">Interventions en cours</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="h3 mb-0 text-success">{{ technicien.interventions_totales }}</div>
+                        <small class="text-muted">Total interventions</small>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="h3 mb-0 text-info">
+                            {% if technicien.interventions_totales > 0 %}
+                                {{ ((technicien.interventions_totales - technicien.interventions_en_cours) / technicien.interventions_totales * 100)|round(0) }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">Taux de résolution</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interventions récentes -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Interventions récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if signalements %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Client</th>
+                                    <th>Zone</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for signalement in signalements[:10] %}
+                                <tr>
+                                    <td><strong>#{{ signalement.id }}</strong></td>
+                                    <td>{{ signalement.client.prenom }} {{ signalement.client.nom }}</td>
+                                    <td>{{ signalement.client.zone }}</td>
+                                    <td>
+                                        {% if signalement.date_intervention %}
+                                            {{ signalement.date_intervention.strftime('%d/%m %H:%M') }}
+                                        {% else %}
+                                            <span class="text-muted">Non planifiée</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ signalement.statut }}">
+                                            {{ signalement.statut|replace('_', ' ')|title }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if signalements|length > 10 %}
+                        <div class="text-center mt-3">
+                            <small class="text-muted">Affichage des 10 interventions les plus récentes</small>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clipboard-list fa-2x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Aucune intervention assignée à ce technicien</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Actions rapides -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if technicien.disponibilite == 'disponible' %}
+                        <button class="btn btn-outline-success" disabled>
+                            <i class="fas fa-phone me-1"></i> Contacter
+                        </button>
+                        <button class="btn btn-outline-primary" disabled>
+                            <i class="fas fa-calendar-plus me-1"></i> Planifier intervention
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-warning" disabled>
+                            <i class="fas fa-clock me-1"></i> Voir planning
+                        </button>
+                    {% endif %}
+                    <button class="btn btn-outline-info" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Imprimer fiche
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-trophy me-2"></i>Performance</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small>Efficacité</small>
+                        <small class="text-muted">85%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small>Respect des délais</small>
+                        <small class="text-muted">92%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" style="width: 92%"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small>Satisfaction client</small>
+                        <small class="text-muted">4.8/5</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: 96%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zones de couverture -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Zones de couverture</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    {% for zone in technicien.zone_couverture.split(',') %}
+                    <span class="badge bg-light text-dark me-1 mb-1">{{ zone.strip() }}</span>
+                    {% endfor %}
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Ce technicien intervient principalement dans ces zones
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

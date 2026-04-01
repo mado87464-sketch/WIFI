@@ -1,0 +1,338 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Confirmer Intervention - Signalement #{{ signalement.id }}{% endblock %}
+{% block page_title %}Confirmer l'Intervention{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du signalement -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Clôturer l'intervention</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Signalement:</strong></div>
+                    <div class="col-sm-9">#{{ signalement.id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Client:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Contact:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.telephone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Technicien:</strong></div>
+                    <div class="col-sm-9">{{ signalement.technicien_assigne }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Problème:</strong></div>
+                    <div class="col-sm-9">{{ signalement.description }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date signalement:</strong></div>
+                    <div class="col-sm-9">{{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date prévue:</strong></div>
+                    <div class="col-sm-9">{{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de confirmation -->
+        <form method="POST">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Rapport d'intervention</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="technicien_id" class="form-label">Technicien ayant effectué l'intervention *</label>
+                        <select class="form-select" id="technicien_id" name="technicien_id" required>
+                            <option value="">Sélectionner le technicien</option>
+                            {% if signalement.technicien_id %}
+                                <option value="{{ signalement.technicien_id }}" selected>
+                                    {{ signalement.technicien_assigne }} (Assigné)
+                                </option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="duree_intervention" class="form-label">Durée de l'intervention</label>
+                            <select class="form-select" id="duree_intervention" name="duree_intervention">
+                                <option value="">Sélectionner</option>
+                                <option value="Moins d'une heure">Moins d'une heure</option>
+                                <option value="1-2 heures">1-2 heures</option>
+                                <option value="2-3 heures">2-3 heures</option>
+                                <option value="3-4 heures">3-4 heures</option>
+                                <option value="Plus de 4 heures">Plus de 4 heures</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="statut_final" class="form-label">Statut final</label>
+                            <select class="form-select" id="statut_final" name="statut_final">
+                                <option value="resolu">✅ Résolu</option>
+                                <option value="partiellement_resolu">🔄 Partiellement résolu</option>
+                                <option value="non_resolu">❌ Non résolu (nécessite une autre intervention)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="rapport" class="form-label">Rapport d'intervention *</label>
+                        <textarea class="form-control" id="rapport" name="rapport" rows="6" required
+                                  placeholder="Décrivez en détail ce qui a été fait..."></textarea>
+                        <div class="form-text">
+                            <strong>Éléments à inclure:</strong><br>
+                            • Diagnostic effectué<br>
+                            • Actions réalisées<br>
+                            • Pièces remplacées (si applicable)<br>
+                            • Tests de vérification<br>
+                            • Recommandations pour le client
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="pieces_changees" class="form-label">Pièces changées (si applicable)</label>
+                        <textarea class="form-control" id="pieces_changees" name="pieces_changees" rows="3"
+                                  placeholder="Listez les équipements ou pièces remplacées..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recommandations" class="form-label">Recommandations pour le client</label>
+                        <textarea class="form-control" id="recommandations" name="recommandations" rows="3"
+                                  placeholder="Conseils pour éviter la récurrence du problème..."></textarea>
+                    </div>
+
+                    <!-- Templates de rapports -->
+                    <div class="mb-3">
+                        <label class="form-label">Templates rapides:</label>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="utiliserRapport('reparation')">
+                                    🔧 Réparation standard
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-info w-100" onclick="utiliserRapport('remplacement')">
+                                    🔄 Remplacement matériel
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <button type="button" class="btn btn-sm btn-outline-success w-100" onclick="utiliserRapport('configuration')">
+                                    ⚙️ Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Confirmation importante</h6>
+                        <ul class="mb-0">
+                            <li>Une fois confirmé, le statut passera à "Résolu"</li>
+                            <li>Le technicien sera marqué comme disponible</li>
+                            <li>Une notification de clôture sera envoyée au client</li>
+                            <li>Le rapport sera archivé dans le dossier du signalement</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i> Confirmer la résolution
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Informations sur le technicien -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Technicien assigné</h6>
+            </div>
+            <div class="card-body">
+                {% if signalement.technicien_obj %}
+                    <div class="text-center mb-3">
+                        <div class="avatar-lg rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" style="width: 60px; height: 60px;">
+                            {{ signalement.technicien_obj.prenom[0]|upper }}{{ signalement.technicien_obj.nom[0]|upper }}
+                        </div>
+                        <h6 class="mt-2">{{ signalement.technicien_obj.nom_complet }}</h6>
+                        <span class="badge bg-warning">{{ signalement.technicien_obj.specialite }}</span>
+                    </div>
+                    <div class="small">
+                        <div><strong>Téléphone:</strong> {{ signalement.technicien_obj.telephone }}</div>
+                        <div><strong>Zone:</strong> {{ signalement.technicien_obj.zone_couverture }}</div>
+                        <div><strong>Interventions:</strong> {{ signalement.technicien_obj.interventions_en_cours }} en cours / {{ signalement.technicien_obj.interventions_totales }} total</div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-user-slash fa-2x mb-2"></i>
+                        <p>Aucun technicien assigné</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <small class="text-muted">{{ signalement.date_signalement.strftime('%d/%m %H:%M') }}</small>
+                        <div>Signalement créé</div>
+                    </div>
+                    {% if signalement.date_prise_en_charge %}
+                    <div class="timeline-item">
+                        <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m %H:%M') }}</small>
+                        <div>Pris en charge par {{ signalement.agent.prenom }} {{ signalement.agent.nom }}</div>
+                    </div>
+                    {% endif %}
+                    {% if signalement.date_intervention %}
+                    <div class="timeline-item">
+                        <small class="text-muted">{{ signalement.date_intervention.strftime('%d/%m %H:%M') }}</small>
+                        <div>Intervention planifiée</div>
+                    </div>
+                    {% endif %}
+                    <div class="timeline-item active">
+                        <small class="text-muted">{{ "Maintenant" }}</small>
+                        <div><strong>Clôture en cours...</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance</h6>
+            </div>
+            <div class="card-body">
+                {% set temps_total = (now() - signalement.date_signalement).total_seconds() / 3600 %}
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h5 mb-0 text-primary">{{ temps_total|round(1) }}</div>
+                        <small class="text-muted">Heures totales</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 mb-0 text-success">{% if signalement.delai_intervention %}✅{% else %}⏰{% endif %}</div>
+                        <small class="text-muted">Délai respecté</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 20px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 15px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6c757d;
+}
+.timeline-item.active::before {
+    background: #28a745;
+}
+</style>
+
+<script>
+const rapports = {
+    reparation: `DIAGNOSTIC:
+Le client signalait une perte de connexion intermittente.
+
+ACTIONS RÉALISÉES:
+1. Vérification des câbles et connexions
+2. Test du signal WiFi avec analyseur
+3. Redémarrage du routeur et du modem
+4. Mise à jour du firmware du routeur
+5. Reconfiguration des paramètres réseau
+
+RÉSULTAT:
+La connexion est maintenant stable et le signal est optimal.
+
+RECOMMANDATIONS:
+- Éviter de surcharger le réseau avec trop d'appareils
+- Redémarrer le routeur une fois par semaine
+- Contacter le support si le problème réapparaît`,
+
+    remplacement: `DIAGNOSTIC:
+Le routeur était défectueux et ne pouvait plus distribuer correctement le signal.
+
+ACTIONS RÉALISÉES:
+1. Test complet de l'ancien équipement
+2. Installation du nouveau routeur modèle XYZ
+3. Configuration des paramètres de sécurité
+4. Test de connexion sur plusieurs appareils
+5. Enregistrement du nouveau matériel
+
+PIÈCES CHANGÉES:
+- Routeur WiFi XYZ (remplacé)
+- Câble Ethernet neuf (remplacé)
+
+RÉSULTAT:
+Le réseau fonctionne parfaitement avec une vitesse améliorée.
+
+RECOMMANDATIONS:
+- Conserver la boîte et la garantie du nouvel équipement
+- Noter les nouveaux mots de passe WiFi
+- Surveiller les performances les prochains jours`,
+
+    configuration: `DIAGNOSTIC:
+Les paramètres du routeur étaient mal configurés, causant des lenteurs.
+
+ACTIONS RÉALISÉES:
+1. Analyse de la configuration actuelle
+2. Optimisation des canaux WiFi
+3. Configuration du QoS pour prioriser le trafic
+4. Mise en place du filtrage MAC
+5. Création de réseaux invités séparés
+
+RÉSULTAT:
+La vitesse a augmenté de 60% et la connexion est stable.
+
+RECOMMANDATIONS:
+- Changer le mot de passe WiFi régulièrement
+- Limiter l'accès au réseau invité
+- Surveiller la consommation de bande passante`
+};
+
+function utiliserRapport(type) {
+    document.getElementById('rapport').value = rapports[type];
+}
+</script>
+{% endblock %}

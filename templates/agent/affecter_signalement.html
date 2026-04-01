@@ -1,0 +1,263 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Affecter Signalement #{{ signalement.id }}{% endblock %}
+{% block page_title %}Affectation du Signalement #{{ signalement.id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du signalement -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du signalement</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>N° Signalement:</strong></div>
+                    <div class="col-sm-9"><span class="badge bg-primary">#{{ signalement.id }}</span></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Client:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Contact:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.telephone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Zone:</strong></div>
+                    <div class="col-sm-9">
+                        <span class="badge bg-info">{{ signalement.client.zone }}</span>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Description:</strong></div>
+                    <div class="col-sm-9">{{ signalement.description }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date:</strong></div>
+                    <div class="col-sm-9">{{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Statut:</strong></div>
+                    <div class="col-sm-9">
+                        <span class="badge badge-{{ signalement.statut }}">
+                            {{ signalement.statut|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire d'affectation -->
+        <form method="POST">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Affectation à un technicien</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="technicien_id" class="form-label">Technicien à affecter *</label>
+                            <select class="form-select" id="technicien_id" name="technicien_id" required>
+                                <option value="">Choisir un technicien</option>
+                                {% for technicien in techniciens %}
+                                    <option value="{{ technicien.id }}">
+                                        {{ technicien.nom_complet }} - {{ technicien.specialite }} 
+                                        ({{ technicien.zone_couverture }}) - {{ technicien.statut_display }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if techniciens|length == 0 %}
+                                <div class="alert alert-warning mt-2">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Aucun technicien disponible pour cette zone
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="urgence" class="form-label">Niveau d'urgence *</label>
+                            <select class="form-select" id="urgence" name="urgence" required>
+                                <option value="basse">🟢 Basse (24-48h)</option>
+                                <option value="normale" selected>🟡 Normale (4-8h)</option>
+                                <option value="haute">🟠 Haute (2-4h)</option>
+                                <option value="urgente">🔴 Urgente (1-2h)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="delai_heures" class="form-label">Délai d'intervention (heures) *</label>
+                            <select class="form-select" id="delai_heures" name="delai_heures" required>
+                                <option value="1">1 heure (Urgent)</option>
+                                <option value="2">2 heures</option>
+                                <option value="4" selected>4 heures</option>
+                                <option value="8">8 heures</option>
+                                <option value="24">24 heures</option>
+                                <option value="48">48 heures</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="date_intervention" class="form-label">Date prévue</label>
+                            <input type="text" class="form-control" id="date_intervention" readonly 
+                                   value="Calculée automatiquement">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes_agent" class="form-label">Notes pour le technicien</label>
+                        <textarea class="form-control" id="notes_agent" name="notes_agent" rows="4" 
+                                  placeholder="Instructions spécifiques pour le technicien, détails sur le problème, accès au lieu..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message_client" class="form-label">Message pour le client (optionnel)</label>
+                        <textarea class="form-control" id="message_client" name="message_client" rows="4" 
+                                  placeholder="Message qui sera envoyé au client avec les informations d'intervention..."></textarea>
+                        <div class="form-text">
+                            <small>Si vous remplissez ce champ, une notification sera envoyée au client</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Envoyer une notification au client?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="envoyer_notification" name="envoyer_notification" value="oui">
+                            <label class="form-check-label" for="envoyer_notification">
+                                📱 Envoyer un SMS au client avec les informations d'intervention
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Recommandations</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>📍 Zone du client: <strong>{{ signalement.client.zone }}</strong></h6>
+                                <p class="mb-1">Privilégiez les techniciens couvrant cette zone</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>🔧 Disponibilités:</h6>
+                                <ul class="mb-0">
+                                    <li>✅ Disponible: Prêt à intervenir</li>
+                                    <li>🔧 Occupé: En cours d'intervention</li>
+                                    <li>🏖️ En congé: Non disponible</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success" {% if techniciens|length == 0 %}disabled{% endif %}>
+                            <i class="fas fa-check me-1"></i> Affecter au technicien
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Détails des techniciens disponibles -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-users me-2"></i>Techniciens disponibles</h6>
+            </div>
+            <div class="card-body">
+                {% if techniciens %}
+                    {% for technicien in techniciens %}
+                    <div class="border rounded p-3 mb-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ technicien.nom_complet }}</h6>
+                                <small class="text-muted">{{ technicien.specialite }}</small>
+                                <div class="mt-1">
+                                    <span class="badge bg-success">{{ technicien.statut_display }}</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <small class="text-muted">{{ technicien.telephone }}</small>
+                                <div class="mt-1">
+                                    <small class="text-muted">{{ technicien.interventions_en_cours }} en cours</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small><strong>Zone:</strong> {{ technicien.zone_couverture }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-user-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Aucun technicien disponible</p>
+                        <small class="text-muted">Essayez de modifier la zone ou d'attendre la libération d'un technicien</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques du jour</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h4 mb-0 text-success">{{ techniciens|length }}</div>
+                        <small class="text-muted">Disponibles</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 mb-0 text-warning">{{ signalements|length if signalements else 0 }}</div>
+                        <small class="text-muted">En attente</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('delai_heures').addEventListener('change', function() {
+    const heures = parseInt(this.value);
+    const maintenant = new Date();
+    const dateIntervention = new Date(maintenant.getTime() + heures * 60 * 60 * 1000);
+    
+    const options = { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    };
+    
+    document.getElementById('date_intervention').value = dateIntervention.toLocaleDateString('fr-FR', options);
+});
+
+document.getElementById('urgence').addEventListener('change', function() {
+    const urgence = this.value;
+    const delaiSelect = document.getElementById('delai_heures');
+    
+    // Ajuster le délai recommandé selon l'urgence
+    const delais = {
+        'basse': '48',
+        'normale': '8',
+        'haute': '4',
+        'urgente': '2'
+    };
+    
+    delaiSelect.value = delais[urgence];
+    delaiSelect.dispatchEvent(new Event('change'));
+});
+
+// Initialiser la date d'intervention au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('delai_heures').dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %}

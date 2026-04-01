@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmation - Signalement WiFi{% endblock %}
+
+{% block content %}
+<div class="container-main">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <div class="mb-3" style="font-size: 4rem;">✅</div>
+                <h2>Signalement enregistré avec succès!</h2>
+                <p class="text-muted">Votre demande a bien été prise en compte</p>
+            </div>
+
+            <div class="card border-success mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📋 Détails de votre signalement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>N° Signalement:</strong></div>
+                        <div class="col-sm-8">#{{ signalement.id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Client:</strong></div>
+                        <div class="col-sm-8">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Téléphone:</strong></div>
+                        <div class="col-sm-8">{{ signalement.client.telephone }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Zone:</strong></div>
+                        <div class="col-sm-8">{{ signalement.client.zone }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Description:</strong></div>
+                        <div class="col-sm-8">{{ signalement.description }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Date du signalement:</strong></div>
+                        <div class="col-sm-8">{{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-info mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🔧 Informations d'intervention</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Technicien assigné:</strong></div>
+                        <div class="col-sm-8">{{ signalement.technicien_assigne }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Délai d'intervention:</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-warning text-dark">{{ signalement.delai_intervention }}</span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Date prévue:</strong></div>
+                        <div class="col-sm-8">
+                            {% if signalement.date_intervention %}
+                                {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4"><strong>Statut:</strong></div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-secondary">{{ signalement.statut|title }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <h6 class="alert-heading">📞 Prochaines étapes:</h6>
+                <p class="mb-2">
+                    <strong>1.</strong> Le technicien {{ signalement.technicien_assigne }} vous contactera avant son passage
+                </p>
+                <p class="mb-2">
+                    <strong>2.</strong> Préparez l'accès à votre installation WiFi
+                </p>
+                <p class="mb-0">
+                    <strong>3.</strong> En cas d'absence, vous pouvez reprogrammer l'intervention en appelant le service client
+                </p>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-wifi me-2">
+                    Retour à l'accueil
+                </a>
+                <a href="{{ url_for('signaler') }}" class="btn btn-outline-secondary">
+                    Nouveau signalement
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

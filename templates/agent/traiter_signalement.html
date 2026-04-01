@@ -1,0 +1,257 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Traiter Signalement #{{ signalement.id }}{% endblock %}
+{% block page_title %}Traitement du Signalement #{{ signalement.id }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du signalement -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du signalement</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Numéro:</strong></div>
+                    <div class="col-sm-9">#{{ signalement.id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Client:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Téléphone:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.telephone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Zone:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.zone }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Description:</strong></div>
+                    <div class="col-sm-9">{{ signalement.description }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date signalement:</strong></div>
+                    <div class="col-sm-9">{{ signalement.date_signalement.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Statut actuel:</strong></div>
+                    <div class="col-sm-9">
+                        <span class="badge badge-{{ signalement.statut }}">
+                            {{ signalement.statut|replace('_', ' ')|title }}
+                        </span>
+                    </div>
+                </div>
+                {% if signalement.agent %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Agent assigné:</strong></div>
+                    <div class="col-sm-9">{{ signalement.agent.prenom }} {{ signalement.agent.nom }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Formulaire de traitement -->
+        {% if signalement.statut == 'nouveau' %}
+        <form method="POST">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Traitement du signalement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="technicien" class="form-label">Technicien à assigner *</label>
+                            <select class="form-select" id="technicien" name="technicien" required>
+                                <option value="">Choisir un technicien</option>
+                                {% for technicien in techniciens %}
+                                    <option value="{{ technicien }}">{{ technicien }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="delai_heures" class="form-label">Délai d'intervention (heures) *</label>
+                            <select class="form-select" id="delai_heures" name="delai_heures" required>
+                                <option value="2">2 heures (Urgent)</option>
+                                <option value="4" selected>4 heures</option>
+                                <option value="8">8 heures</option>
+                                <option value="24">24 heures</option>
+                                <option value="48">48 heures</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes_agent" class="form-label">Notes de l'agent</label>
+                        <textarea class="form-control" id="notes_agent" name="notes_agent" rows="4" 
+                                  placeholder="Ajoutez des notes sur le problème, les actions à entreprendre..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Informations importantes</h6>
+                        <ul class="mb-0">
+                            <li>En assignant ce signalement, vous devenez l'agent responsable</li>
+                            <li>Le client recevra une notification avec le délai d'intervention</li>
+                            <li>Le technicien sera automatiquement notifié</li>
+                            <li>Vous pourrez suivre l'évolution du signalement depuis votre tableau de bord</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check me-1"></i> Assigner et traiter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <!-- Informations de traitement -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Informations de traitement</h5>
+            </div>
+            <div class="card-body">
+                {% if signalement.technicien_assigne %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Technicien:</strong></div>
+                    <div class="col-sm-9">{{ signalement.technicien_assigne }}</div>
+                </div>
+                {% endif %}
+                {% if signalement.delai_intervention %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Délai d'intervention:</strong></div>
+                    <div class="col-sm-9">{{ signalement.delai_intervention }}</div>
+                </div>
+                {% endif %}
+                {% if signalement.date_intervention %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date prévue:</strong></div>
+                    <div class="col-sm-9">{{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                {% endif %}
+                {% if signalement.notes_agent %}
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Notes:</strong></div>
+                    <div class="col-sm-9">{{ signalement.notes_agent }}</div>
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                    <a href="{{ url_for('signalements_agent') }}" class="btn btn-primary">
+                        <i class="fas fa-list me-1"></i> Voir tous les signalements
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <!-- Historique -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-history me-2"></i>Historique</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h6 class="mb-1">Signalement créé</h6>
+                            <small class="text-muted">{{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}</small>
+                            <p class="mb-0">Client: {{ signalement.client.prenom }} {{ signalement.client.nom }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if signalement.date_prise_en_charge %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-warning"></div>
+                        <div class="timeline-content">
+                            <h6 class="mb-1">Pris en charge</h6>
+                            <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m/%Y %H:%M') }}</small>
+                            <p class="mb-0">Par: {{ signalement.agent.prenom }} {{ signalement.agent.nom }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if signalement.date_intervention %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-success"></div>
+                        <div class="timeline-content">
+                            <h6 class="mb-1">Intervention prévue</h6>
+                            <small class="text-muted">{{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') }}</small>
+                            <p class="mb-0">Technicien: {{ signalement.technicien_assigne }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        {% if signalement.statut != 'nouveau' %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-phone me-1"></i> Contacter le client
+                    </button>
+                    <button class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-check me-1"></i> Marquer comme résolu
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit me-1"></i> Modifier les informations
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: #dee2e6;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+.timeline-marker {
+    position: absolute;
+    left: -25px;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+}
+</style>
+{% endblock %}

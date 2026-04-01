@@ -1,0 +1,190 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Tableau de bord Administration{% endblock %}
+{% block page_title %}Tableau de bord Administration{% endblock %}
+
+{% block content %}
+<!-- Statistiques globales -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-users-cog fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ total_agents }}</div>
+            <div class="stats-label">Agents</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-tools fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ total_techniciens }}</div>
+            <div class="stats-label">Techniciens</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-wifi fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ total_signalements }}</div>
+            <div class="stats-label">Signalements totaux</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ signalements_nouveaux }}</div>
+            <div class="stats-label">En attente</div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('creer_agent') }}" class="btn btn-success btn-sm w-100">
+                            <i class="fas fa-user-plus me-1"></i> Créer un agent
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('gestion_agents') }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-users-cog me-1"></i> Gérer les agents
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('liste_techniciens') }}" class="btn btn-info btn-sm w-100">
+                            <i class="fas fa-tools me-1"></i> Voir les techniciens
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('signalements_agent', statut='nouveau') }}" class="btn btn-warning btn-sm w-100">
+                            <i class="fas fa-list me-1"></i> Signalements récents
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Liste des agents -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users-cog me-2"></i>Agents récents</h5>
+                <a href="{{ url_for('gestion_agents') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if agents %}
+                    <div class="list-group list-group-flush">
+                        {% for agent in agents[:5] %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ agent.prenom }} {{ agent.nom }}</h6>
+                                <small class="text-muted">{{ agent.email }}</small>
+                            </div>
+                            <div>
+                                <span class="badge 
+                                    {% if agent.role == 'superviseur' %}bg-danger
+                                    {% elif agent.role == 'agent' %}bg-primary
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ agent.role|title }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Aucun agent enregistré</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des techniciens -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Techniciens</h5>
+                <a href="{{ url_for('liste_techniciens') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+            </div>
+            <div class="card-body">
+                {% if techniciens %}
+                    <div class="list-group list-group-flush">
+                        {% for technicien in techniciens[:5] %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ technicien.prenom }} {{ technicien.nom }}</h6>
+                                <small class="text-muted">{{ technicien.specialite }} - {{ technicien.zone_couverture }}</small>
+                            </div>
+                            <div>
+                                <span class="badge 
+                                    {% if technicien.disponibilite == 'disponible' %}bg-success
+                                    {% elif technicien.disponibilite == 'occupe' %}bg-warning
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ technicien.statut_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-tools fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Aucun technicien enregistré</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activité récente -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Activité système</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-primary">{{ agents|length }}</div>
+                            <small class="text-muted">Agents actifs</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-success">{{ techniciens|selectattr('disponibilite', 'equalto', 'disponible')|list|length }}</div>
+                            <small class="text-muted">Techniciens disponibles</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="h4 mb-0 text-warning">{{ signalements_en_cours }}</div>
+                            <small class="text-muted">Signalements en cours</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

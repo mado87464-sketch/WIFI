@@ -1,0 +1,202 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Signalements{% endblock %}
+{% block page_title %}Gestion des Signalements{% endblock %}
+
+{% block content %}
+<!-- Filtres -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtres</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="statut" class="form-label">Statut</label>
+                <select class="form-select" id="statut" name="statut" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    <option value="nouveau" {% if statut_filtre == 'nouveau' %}selected{% endif %}>Nouveaux</option>
+                    <option value="en_attente" {% if statut_filtre == 'en_attente' %}selected{% endif %}>En attente</option>
+                    <option value="en_cours" {% if statut_filtre == 'en_cours' %}selected{% endif %}>En cours</option>
+                    <option value="resolu" {% if statut_filtre == 'resolu' %}selected{% endif %}>Résolus</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="recherche" class="form-label">Recherche</label>
+                <input type="text" class="form-control" id="recherche" placeholder="Nom, téléphone, zone...">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-search"></i> Rechercher
+                </button>
+                <a href="{{ url_for('signalements_agent') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i> Effacer
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des signalements -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>
+            Signalements 
+            {% if statut_filtre %}
+                <span class="badge bg-secondary ms-2">{{ statut_filtre|replace('_', ' ')|title }}</span>
+            {% endif %}
+        </h5>
+        <div>
+            <span class="badge bg-info">{{ signalements.total }} résultats</span>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if signalements.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>Zone</th>
+                            <th>Description</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Agent</th>
+                            <th>Technicien</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for signalement in signalements.items %}
+                        <tr class="{% if signalement.statut == 'nouveau' %}table-warning{% endif %}">
+                            <td><strong>#{{ signalement.id }}</strong></td>
+                            <td>
+                                <div>{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                                <small class="text-muted">{{ signalement.client.telephone }}</small>
+                            </td>
+                            <td>{{ signalement.client.telephone }}</td>
+                            <td>{{ signalement.client.zone }}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 200px;" title="{{ signalement.description }}">
+                                    {{ signalement.description[:50] }}{% if signalement.description|length > 50 %}...{% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {{ signalement.date_signalement.strftime('%d/%m %H:%M') if signalement.date_signalement else 'N/A' }}
+                                {% if signalement.date_intervention %}
+                                    <br><small class="text-success">{{ signalement.date_intervention.strftime('%d/%m %H:%M') }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ signalement.statut }}">
+                                    {{ signalement.statut|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if signalement.agent %}
+                                    <div>{{ signalement.agent.prenom }} {{ signalement.agent.nom }}</div>
+                                    <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m %H:%M') if signalement.date_prise_en_charge else '' }}</small>
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signalement.technicien_assigne %}
+                                    <div>{{ signalement.technicien_assigne }}</div>
+                                    {% if signalement.delai_intervention %}
+                                        <small class="text-info">{{ signalement.delai_intervention }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    {% if signalement.statut == 'nouveau' %}
+                                        <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                           class="btn btn-sm btn-success" title="Affecter à un technicien">
+                                            <i class="fas fa-user-plus"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if signalement.technicien_assigne and signalement.statut == 'en_attente' %}
+                                        <a href="{{ url_for('notifier_client', signalement_id=signalement.id) }}" 
+                                           class="btn btn-sm btn-info" title="Notifier le client">
+                                            <i class="fas fa-bell"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if signalement.statut == 'en_attente' %}
+                                        <a href="{{ url_for('confirmer_intervention', signalement_id=signalement.id) }}" 
+                                           class="btn btn-sm btn-success" title="Confirmer l'intervention">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-outline-secondary" title="Voir détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if signalements.pages > 1 %}
+            <nav aria-label="Pagination">
+                <ul class="pagination justify-content-center">
+                    {% if signalements.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('signalements_agent', page=signalements.prev_num, statut=statut_filtre) }}">Précédent</a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in signalements.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != signalements.page %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('signalements_agent', page=page_num, statut=statut_filtre) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if signalements.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('signalements_agent', page=signalements.next_num, statut=statut_filtre) }}">Suivant</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun signalement trouvé</h5>
+                <p class="text-muted">
+                    {% if statut_filtre %}
+                        Aucun signalement avec le statut "{{ statut_filtre|replace('_', ' ')|title }}"
+                    {% else %}
+                        Aucun signalement dans la base de données
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('tableau_bord_agent') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-1"></i> Retour au tableau de bord
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

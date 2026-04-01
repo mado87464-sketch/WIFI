@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Signaler une panne - Signalement WiFi{% endblock %}
+
+{% block content %}
+<div class="container-main">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center mb-5">
+                <div class="wifi-icon mb-3">📶</div>
+                <h2>Signaler une panne WiFi</h2>
+                <p class="text-muted">Remplissez le formulaire ci-dessous pour signaler votre problème</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('signaler') }}">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="nom" class="form-label">Nom *</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="prenom" class="form-label">Prénom *</label>
+                        <input type="text" class="form-control" id="prenom" name="prenom" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="telephone" class="form-label">Numéro de téléphone *</label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone" 
+                               placeholder="77 123 45 67" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="zone" class="form-label">Zone/Résidence *</label>
+                        <input type="text" class="form-control" id="zone" name="zone" 
+                               placeholder="Ex: Grand-Yoff, Dakar" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="form-label">Description du problème *</label>
+                    <textarea class="form-control" id="description" name="description" rows="4" 
+                              placeholder="Décrivez en détail le problème que vous rencontrez avec votre connexion WiFi..." 
+                              required></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-wifi btn-lg">
+                        Envoyer le signalement
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-5 p-4 bg-light rounded">
+                <h5 class="mb-3">📋 Informations importantes</h5>
+                <ul class="mb-0">
+                    <li>Les champs marqués d'un astérisque (*) sont obligatoires</li>
+                    <li>Après l'envoi, vous recevrez une estimation du délai d'intervention</li>
+                    <li>Un technicien vous contactera avant son passage</li>
+                    <li>En cas d'urgence, appelez notre service client au 77 000 00 00</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Gestion des Agents{% endblock %}
+{% block page_title %}Gestion des Agents{% endblock %}
+
+{% block content %}
+<!-- En-tête avec actions -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Gestion des Agents</h2>
+        <p class="text-muted mb-0">Créez et gérez les comptes des agents du service</p>
+    </div>
+    <div>
+        <a href="{{ url_for('creer_agent') }}" class="btn btn-success">
+            <i class="fas fa-user-plus me-2"></i>Créer un agent
+        </a>
+    </div>
+</div>
+
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-users fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ agents|length }}</div>
+            <div class="stats-label">Total agents</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-user-shield fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ agents|selectattr('role', 'equalto', 'superviseur')|list|length }}</div>
+            <div class="stats-label">Superviseurs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-user fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ agents|selectattr('role', 'equalto', 'agent')|list|length }}</div>
+            <div class="stats-label">Agents</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-calendar fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ agents|selectattr('role', 'equalto', 'agent_desactive')|list|length }}</div>
+            <div class="stats-label">Désactivés</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des agents -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Liste des agents</h5>
+    </div>
+    <div class="card-body">
+        {% if agents %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Date de création</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                        <tr class="{% if agent.id == session.agent_id %}table-info{% endif %}">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                        {{ agent.prenom[0]|upper }}{{ agent.nom[0]|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ agent.prenom }} {{ agent.nom }}</div>
+                                        {% if agent.id == session.agent_id %}
+                                        <small class="text-muted">(Vous)</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ agent.email }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if agent.role == 'superviseur' %}bg-danger
+                                    {% elif agent.role == 'agent' %}bg-primary
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ agent.role|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>{{ agent.date_creation.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                {% if agent.id == session.agent_id %}
+                                    <span class="badge bg-success">Connecté</span>
+                                {% elif agent.role == 'agent_desactive' %}
+                                    <span class="badge bg-secondary">Désactivé</span>
+                                {% else %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('modifier_agent', agent_id=agent.id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if agent.role != 'agent_desactive' and agent.id != session.agent_id %}
+                                    <form method="POST" action="{{ url_for('activer_desactiver_agent', agent_id=agent.id) }}" 
+                                          style="display: inline;" onsubmit="return confirm('Désactiver cet agent?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Désactiver">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </form>
+                                    {% elif agent.role == 'agent_desactive' %}
+                                    <form method="POST" action="{{ url_for('activer_desactiver_agent', agent_id=agent.id) }}" 
+                                          style="display: inline;" onsubmit="return confirm('Activer cet agent?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activer">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    {% if agent.id != session.agent_id %}
+                                    <form method="POST" action="{{ url_for('supprimer_agent', agent_id=agent.id) }}" 
+                                          style="display: inline;" onsubmit="return confirm('Supprimer cet agent? Cette action est irréversible.')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun agent enregistré</h5>
+                <p class="text-muted mb-3">Commencez par créer votre premier agent</p>
+                <a href="{{ url_for('creer_agent') }}" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Créer un agent
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Informations -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Superviseur:</strong> Accès complet à l'administration</li>
+                    <li><strong>Agent:</strong> Gestion des signalements et techniciens</li>
+                    <li><strong>Désactivé:</strong> Ne peut plus se connecter</li>
+                    <li>Vous ne pouvez pas supprimer votre propre compte</li>
+                    <li>Un agent avec des signalements en cours ne peut être supprimé</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Sécurité</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Les mots de passe sont cryptés</li>
+                    <li>Chaque agent a des permissions spécifiques</li>
+                    <li>L'accès à l'administration est réservé aux superviseurs</li>
+                    <li>Les activités sont tracées dans le système</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

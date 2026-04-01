@@ -1,0 +1,213 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Modifier l'Agent{% endblock %}
+{% block page_title %}Modifier l'Agent{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifier les informations</h5>
+            </div>
+            <form method="POST">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nom" class="form-label">Nom *</label>
+                            <input type="text" class="form-control" id="nom" name="nom" value="{{ agent.nom }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="prenom" class="form-label">Prénom *</label>
+                            <input type="text" class="form-control" id="prenom" name="prenom" value="{{ agent.prenom }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email professionnel *</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ agent.email }}" required>
+                        {% if agent.id == session.agent_id %}
+                        <div class="form-text text-warning">⚠️ Vous modifiez votre propre email</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Rôle *</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="agent" {% if agent.role == 'agent' %}selected{% endif %}>Agent - Gestion des signalements</option>
+                            <option value="superviseur" {% if agent.role == 'superviseur' %}selected{% endif %}>Superviseur - Accès administration complet</option>
+                        </select>
+                        {% if agent.id == session.agent_id and agent.role == 'superviseur' %}
+                        <div class="form-text text-warning">⚠️ Attention: Si vous changez votre rôle, vous perdrez l'accès à l'administration</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="password" name="password" minlength="6">
+                        <div class="form-text">Laissez vide pour ne pas changer le mot de passe actuel</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmer le nouveau mot de passe</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        <div class="form-text">Confirmez le nouveau mot de passe si vous en changez</div>
+                    </div>
+
+                    <!-- Informations actuelles -->
+                    <div class="alert alert-light">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Informations actuelles</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Date de création:</strong> {{ agent.date_creation.strftime('%d/%m/%Y %H:%M') }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Rôle actuel:</strong> 
+                                <span class="badge 
+                                    {% if agent.role == 'superviseur' %}bg-danger
+                                    {% elif agent.role == 'agent' %}bg-primary
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ agent.role|replace('_', ' ')|title }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if agent.id == session.agent_id %}
+                        <div class="mt-2">
+                            <strong class="text-warning">⚠️ Vous êtes en train de modifier votre propre compte</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('gestion_agents') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Informations de l'agent -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Profil de l'agent</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-lg rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                    {{ agent.prenom[0]|upper }}{{ agent.nom[0]|upper }}
+                </div>
+                <h5>{{ agent.prenom }} {{ agent.nom }}</h5>
+                <p class="text-muted">{{ agent.email }}</p>
+                <div class="mb-3">
+                    <span class="badge 
+                        {% if agent.role == 'superviseur' %}bg-danger
+                        {% elif agent.role == 'agent' %}bg-primary
+                        {% else %}bg-secondary{% endif %}">
+                        {{ agent.role|replace('_', ' ')|title }}
+                    </span>
+                </div>
+                <div class="text-start">
+                    <small class="text-muted">
+                        <div><strong>Membre depuis:</strong> {{ agent.date_creation.strftime('%d/%m/%Y') }}</div>
+                        <div><strong>ID:</strong> #{{ agent.id }}</div>
+                        {% if agent.id == session.agent_id %}
+                        <div class="text-warning mt-2"><strong>👤 Votre compte</strong></div>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques de l'agent -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="h5 mb-0 text-primary">{{ signalements_count if signalements_count is defined else 0 }}</div>
+                        <small class="text-muted">Signalements traités</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="h5 mb-0 text-success">{{ interventions_count if interventions_count is defined else 0 }}</div>
+                        <small class="text-muted">Interventions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions rapides -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if agent.id != session.agent_id %}
+                    <button class="btn btn-outline-warning btn-sm" disabled>
+                        <i class="fas fa-key me-1"></i> Réinitialiser mot de passe
+                    </button>
+                    {% endif %}
+                    <button class="btn btn-outline-info btn-sm" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Imprimer profil
+                    </button>
+                    {% if agent.id != session.agent_id %}
+                    <a href="{{ url_for('gestion_agents') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertes de sécurité -->
+        {% if agent.id == session.agent_id %}
+        <div class="card mt-3">
+            <div class="card-header bg-warning">
+                <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>⚠️ Attention</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <ul class="mb-0">
+                        <li>Vous modifiez votre propre compte</li>
+                        <li>Changer votre rôle peut affecter vos accès</li>
+                        <li>Changer votre email vous obligera à vous reconnecter</li>
+                        <li>Assurez-vous de ne pas vous bloquer l'accès</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password && confirmPassword && password !== confirmPassword) {
+        this.setCustomValidity('Les mots de passe ne correspondent pas');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+document.getElementById('role').addEventListener('change', function() {
+    const role = this.value;
+    const currentRole = '{{ agent.role }}';
+    
+    if (currentRole === 'superviseur' && role !== 'superviseur') {
+        if (!confirm('ATTENTION: Vous allez perdre votre accès superviseur. Voulez-vous continuer?')) {
+            this.value = currentRole;
+        }
+    }
+});
+</script>
+{% endblock %}

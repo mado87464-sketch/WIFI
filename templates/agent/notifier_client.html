@@ -1,0 +1,257 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Notifier le Client - Signalement #{{ signalement.id }}{% endblock %}
+{% block page_title %}Notifier le Client{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations du signalement -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notification au client</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Signalement:</strong></div>
+                    <div class="col-sm-9">#{{ signalement.id }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Client:</strong></div>
+                    <div class="col-sm-9">{{ signalement.client.prenom }} {{ signalement.client.nom }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Contact:</strong></div>
+                    <div class="col-sm-9">
+                        📱 {{ signalement.client.telephone }}<br>
+                        📧 {{ signalement.client.email }}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Technicien:</strong></div>
+                    <div class="col-sm-9">
+                        {% if signalement.technicien_assigne %}
+                            {{ signalement.technicien_assigne }}
+                        {% else %}
+                            <span class="text-muted">Non assigné</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Délai:</strong></div>
+                    <div class="col-sm-9">
+                        {% if signalement.delai_intervention %}
+                            {{ signalement.delai_intervention }}
+                        {% else %}
+                            <span class="text-muted">Non défini</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-3"><strong>Date prévue:</strong></div>
+                    <div class="col-sm-9">
+                        {% if signalement.date_intervention %}
+                            {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') }}
+                        {% else %}
+                            <span class="text-muted">Non planifiée</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de notification -->
+        <form method="POST">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i>Contenu du message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="canal" class="form-label">Canal de notification *</label>
+                        <select class="form-select" id="canal" name="canal" required>
+                            <option value="sms">📱 SMS</option>
+                            <option value="email">📧 Email</option>
+                            <option value="appel">📞 Appel téléphonique</option>
+                            <option value="whatsapp">💬 WhatsApp</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message personnalisé</label>
+                        <textarea class="form-control" id="message" name="message" rows="8" 
+                                  placeholder="Personnalisez le message pour le client...">{{ message_par_defaut }}</textarea>
+                        <div class="form-text">
+                            <strong>Variables disponibles:</strong><br>
+                            {client_nom}, {client_prenom}, {signalement_id}, {technicien}, {delai}, {date_intervention}
+                        </div>
+                    </div>
+
+                    <!-- Message pré-généré -->
+                    <div class="mb-3">
+                        <label class="form-label">Message par défaut:</label>
+                        <div class="alert alert-light">
+                            <pre class="mb-0">{{ message_par_defaut }}</pre>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Informations importantes</h6>
+                        <ul class="mb-0">
+                            <li>Le message sera envoyé immédiatement après validation</li>
+                            <li>Une copie sera conservée dans le dossier du signalement</li>
+                            <li>Le client pourra répondre via le même canal</li>
+                            <li>Vous pouvez suivre le statut de la notification</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane me-1"></i> Envoyer la notification
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Historique des notifications -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-history me-2"></i>Historique</h6>
+            </div>
+            <div class="card-body">
+                {% if signalement.message_client %}
+                    <div class="mb-3">
+                        <h6 class="text-success">✅ Notification envoyée</h6>
+                        <small class="text-muted">{{ signalement.date_prise_en_charge.strftime('%d/%m/%Y %H:%M') if signalement.date_prise_en_charge else 'Date inconnue' }}</small>
+                        <div class="mt-2 p-2 bg-light rounded">
+                            <small>{{ signalement.message_client }}</small>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Aucune notification envoyée</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Templates de messages -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Templates rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <button class="btn btn-sm btn-outline-primary w-100" onclick="utiliserTemplate('urgent')">
+                        🚨 Message urgent
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <button class="btn btn-sm btn-outline-info w-100" onclick="utiliserTemplate('standard')">
+                        📋 Message standard
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <button class="btn btn-sm btn-outline-success w-100" onclick="utiliserTemplate('confirme')">
+                        ✅ Intervention confirmée
+                    </button>
+                </div>
+                <div class="mb-2">
+                    <button class="btn btn-sm btn-outline-warning w-100" onclick="utiliserTemplate('retard')">
+                        ⏰ Retard prévu
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conseils -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Conseils</h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Soyez clair et concis</li>
+                    <li>Incluez toujours le numéro de signalement</li>
+                    <li>Précisez le délai d'intervention</li>
+                    <li>Donnez les coordonnées du technicien si possible</li>
+                    <li>Mentionnez les documents nécessaires</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const templates = {
+    urgent: `URGENT - Signalement #{{ signalement.id }}
+
+Cher/Chère {{ signalement.client.prenom }} {{ signalement.client.nom }},
+
+Votre signalement a été priorisé.
+Technicien: {{ signalement.technicien_assigne or 'En cours d\'assignation' }}
+Intervention: DANS LES 2 HEURES
+Date: {{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') if signalement.date_intervention else 'À définir' }}
+
+Veuillez rester disponible.
+Service WiFi`,
+
+    standard: `Signalement #{{ signalement.id }} - Prise en charge
+
+Cher/Chère {{ signalement.client.prenom }} {{ signalement.client.nom }},
+
+Votre signalement est pris en charge.
+Technicien: {{ signalement.technicien_assigne or 'En cours d\'assignation' }}
+Délai: {{ signalement.delai_intervention or 'En cours de définition' }}
+Date: {{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') if signalement.date_intervention else 'À définir' }}
+
+N'hésitez pas à nous contacter pour toute question.
+Service WiFi`,
+
+    confirme: `CONFIRMATION - Signalement #{{ signalement.id }}
+
+Cher/Chère {{ signalement.client.prenom }} {{ signalement.client.nom }},
+
+Votre intervention est confirmée.
+Technicien: {{ signalement.technicien_assigne }}
+Date: {{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') if signalement.date_intervention else 'À définir' }}
+Durée estimée: 2 heures
+
+Le technicien vous contactera 30 minutes avant son arrivée.
+Service WiFi`,
+
+    retard: `INFORMATION - Signalement #{{ signalement.id }}
+
+Cher/Chère {{ signalement.client.prenom }} {{ signalement.client.nom }},
+
+Suite à un imprévu, votre intervention est reportée.
+Nouveau délai: {{ signalement.delai_intervention or 'À définir' }}
+Nouvelle date: {{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') if signalement.date_intervention else 'À définir' }}
+
+Nous vous présentons nos excuses pour ce désagrément.
+Service WiFi`
+};
+
+function utiliserTemplate(type) {
+    document.getElementById('message').value = templates[type];
+}
+</script>
+
+{% set message_par_defaut %}
+Cher/Chère {{ signalement.client.prenom }} {{ signalement.client.nom }},
+
+Votre signalement #{{ signalement.id }} a été pris en charge.
+Technicien assigné: {{ signalement.technicien_assigne or 'En cours d\'assignation' }}
+Délai d'intervention: {{ signalement.delai_intervention or 'En cours de définition' }}
+Date prévue: {{ signalement.date_intervention.strftime('%d/%m/%Y à %H:%M') if signalement.date_intervention else 'En cours de planification' }}
+
+Nous vous contacterons prochainement pour plus de détails.
+Service WiFi
+{% endset %}

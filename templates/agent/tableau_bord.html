@@ -1,0 +1,178 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Tableau de bord{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-wifi fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ total_signalements }}</div>
+            <div class="stats-label">Total signalements</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ nouveaux }}</div>
+            <div class="stats-label">Nouveaux</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ en_attente }}</div>
+            <div class="stats-label">En attente</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-check-circle fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ resolus }}</div>
+            <div class="stats-label">Résolus</div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('signalements_agent', statut='nouveau') }}" class="btn btn-warning btn-sm w-100">
+                            <i class="fas fa-eye me-1"></i> Voir les nouveaux ({{ nouveaux }})
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('signalements_agent', statut='en_attente') }}" class="btn btn-info btn-sm w-100">
+                            <i class="fas fa-hourglass-half me-1"></i> En attente ({{ en_attente }})
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('signalements_agent', statut='en_cours') }}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-tools me-1"></i> En cours ({{ en_cours }})
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('liste_techniciens') }}" class="btn btn-success btn-sm w-100">
+                            <i class="fas fa-users me-1"></i> Voir techniciens
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Signalements récents -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Signalements récents</h5>
+        <a href="{{ url_for('signalements_agent') }}" class="btn btn-sm btn-outline-primary">
+            Voir tout <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+    </div>
+    <div class="card-body">
+        {% if signalements_recents %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Client</th>
+                            <th>Téléphone</th>
+                            <th>Zone</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Agent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for signalement in signalements_recents %}
+                        <tr>
+                            <td><strong>#{{ signalement.id }}</strong></td>
+                            <td>{{ signalement.client.prenom }} {{ signalement.client.nom }}</td>
+                            <td>{{ signalement.client.telephone }}</td>
+                            <td>{{ signalement.client.zone }}</td>
+                            <td>{{ signalement.date_signalement.strftime('%d/%m %H:%M') if signalement.date_signalement else 'N/A' }}</td>
+                            <td>
+                                <span class="badge badge-{{ signalement.statut }}">
+                                    {{ signalement.statut|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if signalement.agent %}
+                                    {{ signalement.agent.prenom }} {{ signalement.agent.nom }}
+                                {% else %}
+                                    <span class="text-muted">Non assigné</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if signalement.statut == 'nouveau' %}
+                                    <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-user-plus"></i> Affecter
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                       class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Aucun signalement récent</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Performance -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance du jour</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="h4 mb-0">{{ resolus }}</div>
+                <small class="text-muted">Signalements résolus aujourd'hui</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>Délai moyen</h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="h4 mb-0">4.2h</div>
+                <small class="text-muted">Temps moyen d'intervention</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

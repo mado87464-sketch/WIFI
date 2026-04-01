@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Signalement WiFi{% endblock %}
+
+{% block content %}
+<div class="container-main">
+    <div class="text-center">
+        <div class="wifi-icon mb-4">📶</div>
+        <h1 class="display-4 mb-4">Service de Signalement WiFi</h1>
+        <p class="lead mb-5">
+            Signalez rapidement vos pannes de connexion WiFi. Notre équipe technique interviendra dans les plus brefs délais.
+        </p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">⚡</div>
+                        <h5 class="card-title">Rapide</h5>
+                        <p class="card-text">Signalez votre problème en quelques minutes seulement</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">🔧</div>
+                        <h5 class="card-title">Efficace</h5>
+                        <p class="card-text">Nos techniciens qualifiés interviennent rapidement</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">📱</div>
+                        <h5 class="card-title">Simple</h5>
+                        <p class="card-text">Pas besoin d'appeler, tout se fait en ligne</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-5">
+            <a href="{{ url_for('signaler') }}" class="btn btn-wifi btn-lg me-3">
+                Signaler une panne
+            </a>
+            <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary btn-lg">
+                Administration
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

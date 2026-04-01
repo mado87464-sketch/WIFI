@@ -1,0 +1,187 @@
+{% extends "agent/base_agent.html" %}
+
+{% block title %}Techniciens{% endblock %}
+{% block page_title %}Gestion des Techniciens{% endblock %}
+
+{% block content %}
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-user-check fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ techniciens|selectattr('disponibilite', 'equalto', 'disponible')|list|length }}</div>
+            <div class="stats-label">Disponibles</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-user-cog fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ techniciens|selectattr('disponibilite', 'equalto', 'occupe')|list|length }}</div>
+            <div class="stats-label">Occupés</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-user-clock fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ techniciens|selectattr('disponibilite', 'equalto', 'conge')|list|length }}</div>
+            <div class="stats-label">En congé</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-icon">
+                <i class="fas fa-tools fa-2x mb-2"></i>
+            </div>
+            <div class="stats-number">{{ techniciens|sum(attribute='interventions_en_cours') }}</div>
+            <div class="stats-label">Interventions en cours</div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des techniciens -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Liste des techniciens</h5>
+        <div>
+            <button class="btn btn-sm btn-outline-primary" onclick="refreshPage()">
+                <i class="fas fa-sync"></i> Actualiser
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if techniciens %}
+            <div class="row">
+                {% for technicien in techniciens %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{ technicien.nom_complet }}</h6>
+                            <span class="badge 
+                                {% if technicien.disponibilite == 'disponible' %}bg-success
+                                {% elif technicien.disponibilite == 'occupe' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ technicien.statut_display }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <small class="text-muted">Spécialité</small>
+                                <div><strong>{{ technicien.specialite }}</strong></div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Contact</small>
+                                <div>{{ technicien.telephone }}</div>
+                                <div class="text-truncate">{{ technicien.email }}</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Zone couverte</small>
+                                <div>{{ technicien.zone_couverture }}</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Statistiques</small>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">En cours</small>
+                                        <div class="fw-bold">{{ technicien.interventions_en_cours }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Total</small>
+                                        <div class="fw-bold">{{ technicien.interventions_totales }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if technicien.disponibilite == 'disponible' %}
+                            <div class="alert alert-success py-2 mb-3">
+                                <i class="fas fa-check-circle me-1"></i>
+                                <small>Disponible pour intervention</small>
+                            </div>
+                            {% elif technicien.disponibilite == 'occupe' %}
+                            <div class="alert alert-warning py-2 mb-3">
+                                <i class="fas fa-clock me-1"></i>
+                                <small>En cours d'intervention</small>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-secondary py-2 mb-3">
+                                <i class="fas fa-calendar-times me-1"></i>
+                                <small>Indisponible</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ url_for('details_technicien', technicien_id=technicien.id) }}" 
+                               class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-eye me-1"></i> Voir détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun technicien enregistré</h5>
+                <p class="text-muted">Veuillez contacter l'administrateur pour ajouter des techniciens</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Performance globale -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance du jour</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="h5 mb-0 text-success">{{ techniciens|sum(attribute='interventions_totales') }}</div>
+                        <small class="text-muted">Total interventions</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h5 mb-0 text-info">{{ (techniciens|sum(attribute='interventions_totales') / techniciens|length)|round(1) if techniciens else 0 }}</div>
+                        <small class="text-muted">Moyenne/technicien</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h5 mb-0 text-warning">{{ (techniciens|selectattr('disponibilite', 'equalto', 'disponible')|list|length / techniciens|length * 100)|round(0) if techniciens else 0 }}%</div>
+                        <small class="text-muted">Disponibilité</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Répartition par spécialité</h6>
+            </div>
+            <div class="card-body">
+                {% set specialites = techniciens|groupby('specialite')|list %}
+                {% for specialite, group in specialites %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span>{{ specialite }}</span>
+                    <div>
+                        <span class="badge bg-primary">{{ group|length }}</span>
+                        <div class="progress" style="height: 4px; width: 100px; display: inline-block; margin-left: 10px;">
+                            <div class="progress-bar" style="width: {{ (group|length / techniciens|length * 100) if techniciens else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
