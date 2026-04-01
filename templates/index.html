@@ -4,20 +4,20 @@
 
 {% block content %}
 <div class="container-main">
-    <div class="text-center mb-4">
+    <div class="text-center mb-5">
         <div class="wifi-icon mb-4">📶</div>
-        <h1 class="display-4 mb-4">Service de Signalement WiFi</h1>
-        <p class="lead mb-5">
+        <h1 class="display-3 mb-4 fw-bold">Service de Signalement WiFi</h1>
+        <p class="lead mb-5 fs-5">
             Signalez rapidement vos pannes de connexion WiFi. Notre équipe technique interviendra dans les plus brefs délais.
         </p>
         
         <!-- Accès rapide -->
-        <div class="alert alert-info mb-4">
-            <h5 class="alert-heading">
+        <div class="alert alert-info mb-4 border-0 shadow-lg" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);">
+            <h5 class="alert-heading fw-bold">
                 <i class="fas fa-bolt me-2"></i>
                 Accès Rapide aux Comptes
             </h5>
-            <p class="mb-0">
+            <p class="mb-3 fs-6">
                 <a href="{{ url_for('acces_rapide') }}" class="btn btn-info">
                     <i class="fas fa-users me-2"></i>
                     Accéder aux comptes de démonstration
@@ -29,55 +29,64 @@
             </p>
         </div>
         
-        <div class="row mt-4">
-        <div class="col-md-3 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
-                    <h5 class="card-title">Créer un compte</h5>
-                    <p class="card-text">Accédez à votre espace personnel pour suivre vos demandes</p>
-                    <a href="{{ url_for('inscription_client') }}" class="btn btn-success">
-                        <i class="fas fa-user-plus me-2"></i>S'inscrire
-                    </a>
+        <div class="row mt-5">
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-user-plus fa-3x text-success mb-3" style="animation: pulse 2s infinite;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Créer un compte</h5>
+                        <p class="card-text text-muted">Accédez à votre espace personnel pour suivre vos demandes</p>
+                        <a href="{{ url_for('inscription_client') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>S'inscrire
+                        </a>
+                    </div>
                 </div>
             </div>
-        <div class="col-md-3 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Se connecter</h5>
-                    <p class="card-text">Accédez à votre compte client</p>
-                    <a href="{{ url_for('connexion_client') }}" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt me-2"></i>Connexion
-                    </a>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-sign-in-alt fa-3x text-primary mb-3" style="animation: pulse 2s infinite;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Se connecter</h5>
+                        <p class="card-text text-muted">Accédez à votre compte client</p>
+                        <a href="{{ url_for('connexion_client') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-search fa-3x text-info mb-3" style="animation: pulse 2s infinite;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Vérifier état</h5>
+                        <p class="card-text text-muted">Suivez l'état de votre signalement</p>
+                        <a href="{{ url_for('verification') }}" class="btn btn-info btn-lg">
+                            <i class="fas fa-search me-2"></i>Vérifier
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-times-circle fa-3x text-danger mb-3" style="animation: pulse 2s infinite;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Annuler demande</h5>
+                        <p class="card-text text-muted">Annulez une demande en cours</p>
+                        <a href="{{ url_for('annulation_signalement') }}" class="btn btn-danger btn-lg">
+                            <i class="fas fa-times-circle me-2"></i>Annuler
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-search fa-3x text-info mb-3"></i>
-                    <h5 class="card-title">Vérifier état</h5>
-                    <p class="card-text">Suivez l'état de votre demande existante</p>
-                    <a href="{{ url_for('verification_signalement') }}" class="btn btn-info">
-                        <i class="fas fa-search me-2"></i>Vérifier
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-times fa-3x text-danger mb-3"></i>
-                    <h5 class="card-title">Annuler demande</h5>
-                    <p class="card-text">Annulez une demande si elle n'est plus nécessaire</p>
-                    <a href="{{ url_for('annulation_signalement') }}" class="btn btn-danger">
-                        <i class="fas fa-times me-2"></i>Annuler
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
         
         <div class="row mt-5">
             <div class="col-md-4 mb-4">
