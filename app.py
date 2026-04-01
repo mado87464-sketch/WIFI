@@ -63,8 +63,8 @@ class Technicien(db.Model):
     def statut_display(self):
         statuts = {
             'disponible': '✅ Disponible',
-            'conge': '🏖️ En congé'
             'occupe': '🔧 Occupé',
+            'conge': '🏖️ En congé'
         }
         return statuts.get(self.disponibilite, 'Inconnu')
 
