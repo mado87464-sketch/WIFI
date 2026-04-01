@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    image: mado87464/wifi-app:latest
+    container_name: wifi-app-prod
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:password@db:3306/wifi_derangement
+      - FLASK_ENV=production
+    depends_on:
+      - db
+    networks:
+      - wifi-network
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: wifi-db-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wifi_derangement
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - wifi-network
+    restart: unless-stopped
+
+networks:
+  wifi-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
