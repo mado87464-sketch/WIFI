@@ -39,7 +39,47 @@ Application web de gestion des signements de dérangements WiFi avec suivi en te
 - **Base de données**: MySQL en conteneur
 - **Web**: Application Flask en conteneur
 
-## 🚀 Installation
+## � CI/CD Pipeline
+
+Le projet utilise GitHub Actions pour l'intégration continue et le déploiement continu:
+
+### 🚀 Pipeline Automatisé
+
+**Déclencheurs:**
+- Push sur la branche `main`
+- Pull Request vers `main`
+- Release (tags `v*`)
+
+**Étapes:**
+1. **Tests** - Validation syntaxe et imports
+2. **Build** - Construction image Docker multi-architecture
+3. **Security Scan** - Analyse de vulnérabilités Trivy
+4. **Deploy** - Déploiement staging/production
+5. **Notify** - Notifications Slack et résumé
+
+### 📦 Docker Hub Integration
+
+**Images générées:**
+- `mado87464/wifi-app:latest` - Dernière version main
+- `mado87464/wifi-app:v1.0.0` - Version taguée
+- `mado87464/wifi-app:main-sha` - Commit spécifique
+
+**Multi-architecture:**
+- ✅ Linux AMD64
+- ✅ Linux ARM64
+
+### 🔧 Configuration Requise
+
+**Secrets GitHub:**
+- `DOCKER_USERNAME` - Nom d'utilisateur Docker Hub
+- `DOCKER_PASSWORD` - Token d'accès Docker Hub
+- `SLACK_WEBHOOK_URL` - Webhook Slack (optionnel)
+
+**SonarCloud:**
+- Analyse de qualité de code intégrée
+- `SONAR_TOKEN` configuré dans les secrets
+
+## �🚀 Installation
 
 ### Prérequis
 - Docker et Docker Compose
