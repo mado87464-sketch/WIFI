@@ -115,16 +115,22 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    {% if signalement.statut == 'nouveau' %}
-                                        <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
-                                           class="btn btn-sm btn-success" title="Affecter à un technicien">
-                                            <i class="fas fa-user-plus"></i>
+                                    {% if signalement.statut in ['nouveau', 'en_attente', 'en_cours'] %}
+                                        <a href="{{ url_for('resoudre_signalement', signalement_id=signalement.id) }}" 
+                                           class="btn btn-success btn-sm me-1">
+                                            <i class="fas fa-check me-1"></i>Résoudre
                                         </a>
                                     {% endif %}
                                     {% if signalement.technicien_assigne and signalement.statut == 'en_attente' %}
                                         <a href="{{ url_for('notifier_client', signalement_id=signalement.id) }}" 
                                            class="btn btn-sm btn-info" title="Notifier le client">
                                             <i class="fas fa-bell"></i>
+                                        </a>
+                                    {% endif %}
+                                    {% if signalement.statut == 'nouveau' %}
+                                        <a href="{{ url_for('affecter_signalement', signalement_id=signalement.id) }}" 
+                                           class="btn btn-sm btn-success" title="Affecter à un technicien">
+                                            <i class="fas fa-user-plus"></i>
                                         </a>
                                     {% endif %}
                                     {% if signalement.statut == 'en_attente' %}

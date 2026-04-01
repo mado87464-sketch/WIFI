@@ -179,6 +179,98 @@ def superviseur_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+@app.route('/signalement/<int:signalement_id>/resoudre', methods=['GET', 'POST'])
+@agent_required
+def resoudre_signalement(signalement_id):
+    """Résoudre un signalement"""
+    signalement = Signalement.query.get_or_404(signalement_id)
+    
+    if request.method == 'POST':
+        # Récupérer les données du formulaire
+        resolution_date = request.form.get('resolution_date')
+        actions_effectuees = request.form.get('actions_effectuees', '')
+        temps_intervention = request.form.get('temps_intervention', '')
+        pieces_utilisees = request.form.get('pieces_utilisees', '')
+        recommandations = request.form.get('recommandations', '')
+        confirmation_client = request.form.get('confirmation_client', 'oui')
+        
+        # Valider que le signalement peut être résolu
+        if signalement.statut == 'resolu':
+            flash('Ce signalement est déjà résolu', 'warning')
+            return redirect(url_for('signalements_agent'))
+        
+        if signalement.statut == 'annule':
+            flash('Ce signalement a été annulé et ne peut pas être résolu', 'danger')
+            return redirect(url_for('signalements_agent'))
+        
+        # Mettre à jour le signalement
+        signalement.statut = 'resolu'
+        signalement.date_resolution = datetime.utcnow()
+        signalement.actions_resolution = actions_effectuees
+        signalement.temps_intervention = temps_intervention
+        signalement.pieces_utilisees = pieces_utilisees
+        signalement.recommandations = recommandations
+        signalement.confirmation_client = confirmation_client
+        signalement.agent_resolution_id = session['agent_id']
+        
+        # Libérer le technicien si assigné
+        if signalement.technicien_id:
+            technicien = Technicien.query.get(signalement.technicien_id)
+            if technicien:
+                technicien.interventions_en_cours = max(0, technicien.interventions_en_cours - 1)
+                technicien.interventions_totales += 1
+                technicien.disponibilite = 'disponible'
+        
+        db.session.commit()
+        
+        # Envoyer notification (simulation)
+        print(f"✅ Signalement #{signalement.id} résolu")
+        print(f"👤 Client: {signalement.client.telephone}")
+        print(f"🔧 Agent: {session.get('agent_nom', 'Agent')}")
+        print(f"⏰ Date résolution: {signalement.date_resolution.strftime('%d/%m/%Y %H:%M')}")
+        print(f"📝 Actions: {actions_effectuees[:100]}...")
+        
+        flash(f'Signalement #{signalement.id} marqué comme résolu avec succès', 'success')
+        return redirect(url_for('signalements_agent'))
+    
+    return render_template('agent/resoudre_signalement.html', signalement=signalement)
+
+@app.route('/signalement/<int:signalement_id>/modifier-statut', methods=['POST'])
+@agent_required
+def modifier_statut_signalement(signalement_id):
+    """Modifier rapidement le statut d'un signalement"""
+    signalement = Signalement.query.get_or_404(signalement_id)
+    nouveau_statut = request.form.get('nouveau_statut')
+    
+    # Valider le statut
+    statuts_valides = ['nouveau', 'en_attente', 'en_cours', 'resolu', 'annule']
+    if nouveau_statut not in statuts_valides:
+        flash('Statut invalide', 'danger')
+        return redirect(url_for('signalements_agent'))
+    
+    # Mettre à jour le statut
+    ancien_statut = signalement.statut
+    signalement.statut = nouveau_statut
+    
+    # Gérer les changements de technicien
+    if nouveau_statut == 'resolu' and signalement.technicien_id:
+        technicien = Technicien.query.get(signalement.technicien_id)
+        if technicien:
+            technicien.interventions_en_cours = max(0, technicien.interventions_en_cours - 1)
+            technicien.interventions_totales += 1
+            technicien.disponibilite = 'disponible'
+    
+    if nouveau_statut == 'en_cours' and signalement.technicien_id:
+        technicien = Technicien.query.get(signalement.technicien_id)
+        if technicien and technicien.disponibilite == 'disponible':
+            technicien.interventions_en_cours += 1
+            technicien.disponibilite = 'occupe'
+    
+    db.session.commit()
+    
+    flash(f'Statut du signalement #{signalement.id} changé de "{ancien_statut}" à "{nouveau_statut}"', 'success')
+    return redirect(url_for('signalements_agent'))
+
 @app.route('/acces-rapide')
 def acces_rapide():
     """Page d'accès rapide avec identifiants par défaut"""

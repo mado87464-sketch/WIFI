@@ -1,0 +1,332 @@
+{% extends "base_agent.html" %}
+
+{% block title %}Résoudre Signalement #{{ signalement.id }} - Service WiFi{% endblock %}
+
+{% block extra_css %}
+<style>
+    .resolution-form {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .success-icon {
+        font-size: 5rem;
+        color: #28a745;
+        margin-bottom: 1.5rem;
+    }
+    .signalement-info {
+        background-color: #f8f9fa;
+        border-left: 4px solid #007bff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .resolution-steps {
+        background-color: #e8f5e8;
+        border: 1px solid #28a745;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .step-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #c3e6cb;
+    }
+    .step-item:last-child {
+        border-bottom: none;
+    }
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 15px;
+    }
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #28a745;
+    }
+    .resolution-badge {
+        font-size: 1.2rem;
+        padding: 0.5rem 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- En-tête -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="mb-3">Résoudre Signalement #{{ signalement.id }}</h2>
+            <p class="lead">Marquez ce signalement comme résolu et documentez l'intervention</p>
+        </div>
+    </div>
+
+    <!-- Informations du signalement -->
+    <div class="signalement-info">
+        <h5 class="mb-3">
+            <i class="fas fa-info-circle me-2"></i>
+            Informations du signalement
+        </h5>
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Client:</strong> {{ signalement.client.prenom }} {{ signalement.client.nom }}</p>
+                <p><strong>Téléphone:</strong> {{ signalement.client.telephone }}</p>
+                <p><strong>Zone:</strong> {{ signalement.client.zone }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Date signalement:</strong> {{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}</p>
+                <p><strong>Statut actuel:</strong> 
+                    <span class="badge badge-{{ signalement.statut }}">
+                        {{ signalement.statut_display }}
+                    </span>
+                </p>
+                {% if signalement.technicien_assigne %}
+                <p><strong>Technicien:</strong> {{ signalement.technicien_assigne }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="mt-3">
+            <p><strong>Description du problème:</strong></p>
+            <p class="text-muted">{{ signalement.description }}</p>
+        </div>
+    </div>
+
+    <!-- Étapes de résolution -->
+    <div class="resolution-steps">
+        <h5 class="mb-3">
+            <i class="fas fa-list-ol me-2"></i>
+            Processus de résolution
+        </h5>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 1:</strong> Confirmer que le problème est effectivement résolu
+        </div>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 2:</strong> Documenter les actions effectuées
+        </div>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 3:</strong> Noter le temps et les ressources utilisés
+        </div>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 4:</strong> Ajouter des recommandations si nécessaire
+        </div>
+        <div class="step-item">
+            <i class="fas fa-check text-success me-2"></i>
+            <strong>Étape 5:</strong> Confirmer la résolution finale
+        </div>
+    </div>
+
+    <!-- Formulaire de résolution -->
+    <div class="resolution-form">
+        <form method="POST">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Détails de la résolution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="mb-3">
+                        <label for="resolution_date" class="form-label">
+                            <i class="fas fa-calendar me-1"></i>
+                            Date de résolution *
+                        </label>
+                        <input type="datetime-local" class="form-control" id="resolution_date" 
+                               name="resolution_date" required
+                               value="{{ moment().format('YYYY-MM-DDTHH:mm') }}">
+                        <small class="form-text text-muted">
+                            Date et heure où le problème a été résolu
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="actions_effectuees" class="form-label">
+                            <i class="fas fa-tools me-1"></i>
+                            Actions effectuées *
+                        </label>
+                        <textarea class="form-control" id="actions_effectuees" name="actions_effectuees" 
+                                  rows="4" required
+                                  placeholder="Décrivez en détail les actions effectuées pour résoudre le problème..."></textarea>
+                        <small class="form-text text-muted">
+                            Soyez précis sur les interventions techniques réalisées
+                        </small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="temps_intervention" class="form-label">
+                                <i class="fas fa-clock me-1"></i>
+                                Temps d'intervention (minutes)
+                            </label>
+                            <input type="number" class="form-control" id="temps_intervention" 
+                                   name="temps_intervention" min="0" 
+                                   placeholder="45">
+                            <small class="form-text text-muted">
+                                Temps total passé sur l'intervention
+                            </small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="pieces_utilisees" class="form-label">
+                                <i class="fas fa-box me-1"></i>
+                                Pièces utilisées
+                            </label>
+                            <input type="text" class="form-control" id="pieces_utilisees" 
+                                   name="pieces_utilisees" 
+                                   placeholder="Ex: Câble RJ45, Switch, Antenne">
+                            <small class="form-text text-muted">
+                                Matériel ou pièces remplacées si applicable
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recommandations" class="form-label">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Recommandations
+                        </label>
+                        <textarea class="form-control" id="recommandations" name="recommandations" 
+                                  rows="3" 
+                                  placeholder="Recommandations pour éviter que le problème ne se reproduise..."></textarea>
+                        <small class="form-text text-muted">
+                            Suggestions pour le client ou pour l'équipe technique
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmation_client" class="form-label">
+                            <i class="fas fa-user-check me-1"></i>
+                            Confirmation client
+                        </label>
+                        <select class="form-select" id="confirmation_client" name="confirmation_client">
+                            <option value="oui">Oui - Le client a confirmé la résolution</option>
+                            <option value="non">Non - Le client n'a pas pu être joint</option>
+                            <option value="partiel">Partiel - Résolution partielle</option>
+                        </select>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Confirmation de résolution
+                        </h6>
+                        <p class="mb-0">
+                            En marquant ce signalement comme résolu, le statut sera changé automatiquement 
+                            et le client sera notifié. Cette action est irréversible.
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('signalements_agent') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour aux signalements
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Marquer comme résolu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Timeline du signalement -->
+    <div class="mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-history me-2"></i>
+            Historique du signalement
+        </h5>
+        <div class="timeline">
+            <div class="timeline-item">
+                <strong>{{ signalement.date_signalement.strftime('%d/%m/%Y %H:%M') }}</strong> - 
+                Signalement enregistré
+            </div>
+            {% if signalement.date_prise_en_charge %}
+            <div class="timeline-item">
+                <strong>{{ signalement.date_prise_en_charge.strftime('%d/%m/%Y %H:%M') }}</strong> - 
+                Prise en charge par l'agent
+            </div>
+            {% endif %}
+            {% if signalement.date_intervention %}
+            <div class="timeline-item">
+                <strong>{{ signalement.date_intervention.strftime('%d/%m/%Y %H:%M') }}</strong> - 
+                Intervention planifiée
+            </div>
+            {% endif %}
+            {% if signalement.technicien_assigne %}
+            <div class="timeline-item">
+                <strong>Technicien assigné:</strong> {{ signalement.technicien_assigne }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-set current date/time
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const dateInput = document.getElementById('resolution_date');
+    if (!dateInput.value) {
+        const offset = now.getTimezoneOffset();
+        now.setMinutes(now.getMinutes() - offset);
+        dateInput.value = now.toISOString().slice(0, 16);
+    }
+});
+
+// Auto-save draft
+let autoSaveTimer;
+document.querySelectorAll('textarea, input').forEach(function(element) {
+    element.addEventListener('input', function() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(function() {
+            localStorage.setItem('resolution_draft_' + {{ signalement.id }}, 
+                               JSON.stringify({
+                                   actions: document.getElementById('actions_effectuees').value,
+                                   recommandations: document.getElementById('recommandations').value,
+                                   pieces: document.getElementById('pieces_utilisees').value
+                               }));
+        }, 2000);
+    });
+});
+
+// Load draft if exists
+window.addEventListener('load', function() {
+    const draft = localStorage.getItem('resolution_draft_' + {{ signalement.id }});
+    if (draft) {
+        const data = JSON.parse(draft);
+        if (data.actions) document.getElementById('actions_effectuees').value = data.actions;
+        if (data.recommandations) document.getElementById('recommandations').value = data.recommandations;
+        if (data.pieces) document.getElementById('pieces_utilisees').value = data.pieces;
+    }
+});
+
+// Clear draft on submit
+document.querySelector('form').addEventListener('submit', function() {
+    localStorage.removeItem('resolution_draft_' + {{ signalement.id }});
+});
+</script>
+{% endblock %}
