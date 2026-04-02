@@ -176,7 +176,7 @@
                         <span class="badge bg-primary">{{ group|length }}</span>
                         {% set percentage = (group|length / techniciens|length * 100)|int if techniciens else 0 %}
                         <div class="progress mt-2" style="height: 8px;">
-                            <div class="progress-bar" style="width: {{ percentage }}%;"></div>
+                            <div class="progress-bar bg-primary" style="width: {{ percentage }}%;"></div>
                         </div>
                     </div>
                 </div>

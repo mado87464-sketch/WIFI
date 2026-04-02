@@ -975,6 +975,7 @@ def confirmation_client(signalement_id):
     return render_template('confirmation_client.html', signalement=signalement)
 
 @app.route('/admin')
+@superviseur_required
 def admin():
     signalements = Signalement.query.order_by(Signalement.date_signalement.desc()).all()
     return render_template('admin.html', signalements=signalements)

@@ -266,7 +266,7 @@
                 <a class="nav-link" href="{{ url_for('signalements_agent') }}">
                     <i class="fas fa-list me-1"></i>Signalements
                 </a>
-                <a class="nav-link" href="{{ url_for('techniciens') }}">
+                <a class="nav-link" href="{{ url_for('liste_techniciens') }}">
                     <i class="fas fa-users me-1"></i>Techniciens
                 </a>
                 {% if session.get('agent_role') == 'superviseur' %}
