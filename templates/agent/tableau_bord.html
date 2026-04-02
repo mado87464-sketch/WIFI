@@ -144,7 +144,7 @@
         <div class="col-md-4 text-end">
             <div class="text-end">
                 <div class="small">Dernière synchronisation</div>
-                <div class="fw-bold">{{ moment().format('HH:mm:ss') }}</div>
+                <div class="fw-bold">{{ datetime.now().strftime('%H:%M:%S') }}</div>
             </div>
         </div>
     </div>
@@ -232,10 +232,10 @@
     const signalementChart = new Chart(ctx1, {
         type: 'line',
         data: {
-            labels: {{ dates|tojson }},
+            labels: {{ dates|tojson|safe }},
             datasets: [{
                 label: 'Signalements par jour',
-                data: {{ counts|tojson }},
+                data: {{ counts|tojson|safe }},
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 borderWidth: 3,

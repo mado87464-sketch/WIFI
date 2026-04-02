@@ -677,6 +677,8 @@ def activer_desactiver_agent(agent_id):
     db.session.commit()
     return redirect(url_for('gestion_agents'))
 
+import json
+
 @app.route('/tableau-bord-agent')
 @agent_required
 def tableau_bord_agent():
@@ -720,8 +722,8 @@ def tableau_bord_agent():
                          en_cours=en_cours,
                          resolus=resolus,
                          signalements_recents=signalements_recents,
-                         dates=dates,
-                         counts=counts,
+                         dates=json.dumps(dates),
+                         counts=json.dumps(counts),
                          recent_activities=recent_activities)
 
 @app.route('/signalements-agent')
